@@ -1,5 +1,8 @@
 class_name KeypadPanel
 extends Control
+
+## evita que o mesmo [E]/[ESC] que abre o painel o feche no mesmo quadro
+var _armed := false
 ## Teclado numérico da estação — usado em cofres, travas e no reator.
 
 var prompt := "CÓDIGO"
@@ -69,6 +72,7 @@ func _ready() -> void:
 	v.add_child(UIStyle.divider())
 	v.add_child(UIStyle.make_label("digite com o teclado ou clique    •    [ESC] sair", 11, UIStyle.TEXT_DIM))
 	_update()
+	_arm()
 
 
 func _digit(d: String) -> void:
@@ -107,6 +111,8 @@ func _submit() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not _armed:
+		return
 	if event is InputEventKey and event.is_pressed():
 		var k := (event as InputEventKey).keycode
 		if k >= KEY_0 and k <= KEY_9:
@@ -118,3 +124,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif k == KEY_BACKSPACE:
 			typed = typed.substr(0, maxi(0, typed.length() - 1))
 			_update()
+
+func _arm() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_armed = true

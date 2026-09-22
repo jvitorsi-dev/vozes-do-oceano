@@ -156,11 +156,11 @@ func set_chapter(n: int) -> void:
 			AudioMan.music_intensity(0.42)
 			GameState.add_resonance(1)
 			after(20.0, func() -> void:
-				if doors.has("obs"):
-					var d: Door = doors["obs"]
+				if doors.has("selada"):
+					var d: Door = doors["selada"]
 					d.force_open()
 					UI.play_stress(0.5, 5.0)
-					UI.subtitle("", "A porta do módulo de observação se abre sozinha, devagar, como se alguém tivesse esperado você chegar até ali.", 6.0)
+					UI.subtitle("", "A porta do módulo de observação — a que estava soldada por dentro — se abre sozinha, devagar, como se alguém tivesse esperado você chegar até ali. Atrás dela: chapa soldada. Só isso.", 8.0)
 					GameState.seen_anomaly("porta_aberta"))
 		3:
 			GameState.set_objective("Descobrir o que o oceano está tentando fazer")
@@ -276,11 +276,32 @@ func lift_action(node: Node, payload: Dictionary) -> void:
 		return
 	var bottom: Vector3 = payload.get("bottom", platform.position)
 	var top: Vector3 = payload.get("top", platform.position)
-	var going_up := platform.position.y < (bottom.y + top.y) * 0.5
-	var target: Vector3 = top if going_up else bottom
+	var target: Vector3
+	if payload.has("call_to"):
+		# painel de chamada: traz a plataforma para o nível de quem apertou
+		target = bottom if String(payload["call_to"]) == "bottom" else top
+		if platform.position.distance_to(target) < 0.6:
+			UI.show_note("MONTACARGA", "A plataforma já está neste nível. Use o painel da plataforma para subir.")
+			AudioMan.play_3d("blip", platform.global_position, -12.0)
+			return
+	else:
+		# painel da plataforma: leva o jogador para o outro nível
+		target = top if platform.position.y < (bottom.y + top.y) * 0.5 else bottom
 	AudioMan.play_3d("power", platform.global_position, -12.0)
+	if not payload.has("call_to"):
+		# o painel fica na plataforma: se o jogador apertou de fora, ela não parte
+		var jog := get_tree().get_first_node_in_group("player") as Node3D
+		if jog != null:
+			var plano := Vector2(jog.global_position.x - platform.global_position.x,
+					jog.global_position.z - platform.global_position.z).length()
+			if plano > 1.6 or absf(jog.global_position.y - platform.global_position.y) > 1.4:
+				UI.show_note("MONTACARGA", "Suba na plataforma do monta-carga para operá-la. Do corredor, use o painel de chamada.")
+				AudioMan.play_3d("blip", platform.global_position, -12.0)
+				return
 	var tw := platform.create_tween()
 	tw.tween_property(platform, "position", target, 6.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	# quem viaja em cima não cai pela borda: a plataforma "segura" o passageiro
+	tw.parallel().tween_method(func(_v: float) -> void: _keep_rider(platform), 0.0, 1.0, 6.0)
 	# o elevador às vezes hesita no meio do caminho
 	if not GameState.has("lift_hesitou") and chapter >= 1:
 		GameState.set_flag("lift_hesitou")
@@ -292,15 +313,46 @@ func lift_action(node: Node, payload: Dictionary) -> void:
 			after(3.5, func() -> void: tw.play()))
 
 
+## Mantém o passageiro dentro do piso da plataforma durante a viagem.
+func _keep_rider(platform: AnimatableBody3D) -> void:
+	var jog := get_tree().get_first_node_in_group("player") as Node3D
+	if jog == null or not is_instance_valid(platform):
+		return
+	var topo := platform.global_position.y + 0.17
+	if absf(jog.global_position.y - topo) > 0.8:
+		return
+	var ax := platform.global_position.x
+	var az := platform.global_position.z
+	var cx := clampf(jog.global_position.x - ax, -0.85, 0.85)
+	var cz := clampf(jog.global_position.z - az, -0.85, 0.85)
+	# só reposiciona se estiver saindo do piso da plataforma (evita queda na viagem)
+	if absf(cx - (jog.global_position.x - ax)) > 0.02 or absf(cz - (jog.global_position.z - az)) > 0.02:
+		jog.global_position.x = ax + cx
+		jog.global_position.z = az + cz
+
+
+## Plataforma do monta-carga mais próxima do jogador (usada por testes e
+## por chamadas sem referência explícita de plataforma).
 func _find_lift() -> AnimatableBody3D:
-	var found: AnimatableBody3D = null
+	var candidatos: Array[AnimatableBody3D] = []
 	for n in props:
 		if is_instance_valid(n) and n is AnimatableBody3D:
-			found = n
-	if found == null and world != null:
+			candidatos.append(n)
+	if candidatos.is_empty() and world != null:
 		for c in world.find_children("*", "AnimatableBody3D", true, false):
-			found = c
-	return found
+			candidatos.append(c as AnimatableBody3D)
+	if candidatos.is_empty():
+		return null
+	var jog := get_tree().get_first_node_in_group("player") as Node3D
+	var melhor := candidatos[0]
+	if jog != null:
+		var d := melhor.global_position.distance_to(jog.global_position)
+		for c in candidatos:
+			var dd := c.global_position.distance_to(jog.global_position)
+			if dd < d:
+				d = dd
+				melhor = c
+	return melhor
 
 
 func on_flashlight(on: bool, pos: Vector3) -> void:
@@ -464,7 +516,7 @@ func resync() -> void:
 	for id: String in doors.keys():
 		var d: Door = doors[id]
 		d.set_powered(powered or GameState.has("energia_ok"))
-		if id == "obs" and (GameState.has("leu_log_final") or GameState.has("final_b")):
+		if id == "selada" and GameState.chapter >= 2:
 			d.force_open()
 	Ocean.set_resonance(GameState.resonance)
 	set_chapter(GameState.chapter)

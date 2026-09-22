@@ -13,6 +13,32 @@ const D2 := 52.0
 const D3 := 64.0
 const D4 := 76.0
 
+# Monta-cargas: cada poço é um vão real no piso do convés superior.
+const LIFT_A_BOTTOM := Vector3(9.0, D1 - 0.13, -16.5)
+const LIFT_A_TOP := Vector3(9.0, D2 - 0.13, -16.5)
+const LIFT_B_BOTTOM := Vector3(16.4, D2 - 0.13, 8.0)
+const LIFT_B_TOP := Vector3(16.4, D3 - 0.13, 8.0)
+const LIFT_C_BOTTOM := Vector3(34.1, D3 - 0.13, 0.0)
+const LIFT_C_TOP := Vector3(34.1, D4 - 0.13, 0.0)
+const HOLE_A := {"x1": 7.7, "z1": -17.8, "x2": 10.3, "z2": -15.2}
+const HOLE_B := {"x1": 15.1, "z1": 6.7, "x2": 17.7, "z2": 9.3}
+const HOLE_C := {"x1": 32.8, "z1": -1.3, "x2": 35.4, "z2": 1.3}
+
+
+## Vãos que o anel de cada convés precisa ter (piso e teto).
+static func holes_for_deck(y: float, piso: bool) -> Array:
+	if piso:
+		if is_equal_approx(y, D2):
+			return [HOLE_A]
+		if is_equal_approx(y, D3):
+			return [HOLE_B]
+		return []
+	if is_equal_approx(y, D1):
+		return [HOLE_A]
+	if is_equal_approx(y, D2):
+		return [HOLE_B]
+	return []
+
 
 static func build(root: Node3D) -> void:
 	LampGrid.reset()
@@ -65,7 +91,11 @@ static func _ring(parent: Node3D, y: float, h: float, doors: Array) -> void:
 		"pipes": true,
 		"doors": doors,
 		"lamps": lamps,
+		"floor_holes": holes_for_deck(y, true),
+		"ceil_holes": holes_for_deck(y, false),
 	}, "anel%d" % int(y), "ANEL DE CIRCULAÇÃO — CONVÉS %d" % int((y - 40.0) / 12.0 + 1))
+	for hd: Dictionary in holes_for_deck(y, true):
+		StationKit.shaft_marks(parent, (float(hd["x1"]) + float(hd["x2"])) * 0.5, (float(hd["z1"]) + float(hd["z2"])) * 0.5, float(hd["x2"]) - float(hd["x1"]), y)
 	var floor_mat := Mats.get_mat("wall_dark")
 	# núcleo central: instalações seladas, tubulações e avisos
 	G3D.box(parent, Vector3(28.0, h, 28.0), Vector3(0, y + h * 0.5, 0), floor_mat, true, Vector3.ZERO, "nucleo")
@@ -122,7 +152,7 @@ static func _build_deck1(root: Node3D) -> void:
 	StationKit.crates(root, Vector3(11.0, D1, -40.0), 4)
 	StationKit.suit_rack(root, Vector3(14.0, D1, -22.0), -PI * 0.5, 2)
 	StationKit.console(root, Vector3(-12.0, D1, -20.2), 0.0, "terminal",
-			{"docs": ["bl_000", "log_argos_01"], "title": "TERMINAL DO HANGAR"})
+			{"docs": ["bl_000", "log_argos_01"], "title": "TERMINAL DO HANGAR"}, {"needs_power": false})
 	StationKit.camera_fixture(root, "cam_01", "CAM-01 HANGAR", Vector3(-15.6, D1 + 5.4, -44.5), PI * 0.25, "HANGAR")
 	Director.register_poi("hangar", Vector3(0, D1, -30))
 	Director.register_poi("lab", Vector3(0, D2, -28))
@@ -146,7 +176,9 @@ static func _build_deck1(root: Node3D) -> void:
 	StationKit.shelf(root, Vector3(-24.0, D1, -8.4), 0.0, 8)
 	StationKit.locker(root, Vector3(-22.0, D1, 6.0), -PI * 0.5, "SOLDA")
 	# fusível de 400 A
-	var fuse := G3D.box(root, Vector3(0.4, 0.4, 0.5), Vector3(-34.0, D1 + 1.3, -4.6), Mats.get_mat("metal_rust"), true, Vector3.ZERO, "fusivel")
+	G3D.box(root, Vector3(1.3, 1.05, 1.3), Vector3(-34.0, D1 + 0.52, -4.6), Mats.get_mat("metal_rust"), true, Vector3.ZERO, "engradado")
+	G3D.box(root, Vector3(1.2, 0.05, 1.2), Vector3(-34.0, D1 + 1.07, -4.6), Mats.get_mat("fabric"), false, Vector3.ZERO, "tampa")
+	var fuse := G3D.box(root, Vector3(0.42, 0.42, 0.52), Vector3(-34.0, D1 + 1.32, -4.6), Mats.get_mat("metal"), true, Vector3.ZERO, "fusivel")
 	var fi := Interactable.create("Pegar fusível de 400 A", Vector3(1.0, 1.0, 1.0), Vector3.ZERO,
 			func(_p: Node3D, _i: Interactable) -> void:
 				GameState.set_flag("tem_fusivel")
@@ -155,7 +187,7 @@ static func _build_deck1(root: Node3D) -> void:
 				fuse.queue_free())
 	fuse.add_child(fi)
 	StationKit.console(root, Vector3(-38.0, D1, 8.0), PI * 0.5, "terminal",
-			{"docs": ["eng_note_01", "manuel_reactor"], "title": "BANCADA DE MANUTENÇÃO"})
+			{"docs": ["eng_note_01", "manuel_reactor"], "title": "BANCADA DE MANUTENÇÃO"}, {"needs_power": false})
 	Director.register_poi("deposito", Vector3(-30, D1, 0))
 
 	# ---- CABINES (leste)
@@ -174,9 +206,9 @@ static func _build_deck1(root: Node3D) -> void:
 	StationKit.shelf(root, Vector3(35.0, D1, -9.0), PI, 5)
 	Director.register_prop(root.get_node("Cabines"))
 	StationKit.console(root, Vector3(20.0, D1, -10.0), 0.0, "terminal",
-			{"docs": ["cabin_iris"], "title": "TERMINAL DA CABINE 1"})
+			{"docs": ["cabin_iris"], "title": "TERMINAL DA CABINE 1"}, {"needs_power": false})
 	StationKit.console(root, Vector3(36.0, D1, 10.0), PI, "terminal",
-			{"docs": ["cabin_solokov"], "title": "TERMINAL DA CABINE 2"})
+			{"docs": ["cabin_solokov"], "title": "TERMINAL DA CABINE 2"}, {"needs_power": false})
 	StationKit.tape_player(root, Vector3(20.5, D1, 2.0), -PI * 0.5, "fita_1", "andrei_01")
 	# fotografia fixada na parede
 	StationKit.console(root, Vector3(36.0, D1, -2.0), PI, "photo", {"doc": "photo_01"})
@@ -229,9 +261,10 @@ static func _build_deck1(root: Node3D) -> void:
 	Director.register_poi("anel_leste", Vector3(16, D1, 4))
 	Director.register_poi("corredor_leste", Vector3(16, D1, 8))
 	Director.register_poi("anel_oeste", Vector3(-16, D1, 2))
-	var lift_a := StationKit.lift(root, Vector3(9.0, D1, -16.0), Vector3(9.0, D2, -16.0))
+	var lift_a := StationKit.lift(root, LIFT_A_BOTTOM, LIFT_A_TOP, Vector3(2.5, 0.3, 2.5),
+			Vector3(-2.9, 0.0, -0.1), "MONTACARGA — CONVES 2", Vector3(1, 0, 0))
 	Director.register_prop(lift_a["platform"])
-	Director.register_poi("lift_a", Vector3(9.0, D1, -14.6))
+	Director.register_poi("lift_a", LIFT_A_BOTTOM + Vector3(-2.4, 0, 0))
 	Director.safe_spawn_pos = Vector3(0, D1 + 0.6, -22.0)
 
 
@@ -294,7 +327,7 @@ static func _build_deck2(root: Node3D) -> void:
 		"lamps": _lamp_row(true, -12.0, 12.0, -28.0, 3, false, 0.25),
 	}, "lab", "LABORATÓRIOS DE XENOBIOLOGIA")
 	StationKit.console(root, Vector3(-10.0, D2, -21.0), 0.0, "terminal",
-			{"docs": ["lab_note_01", "xeno_proto_7"], "title": "ESTAÇÃO DE ANÁLISE"})
+			{"docs": ["lab_note_01", "xeno_proto_7", "mirror_proto"], "title": "ESTAÇÃO DE ANÁLISE"})
 	# mesa de exames
 	G3D.box(root, Vector3(2.2, 0.85, 1.1), Vector3(-8.0, D2 + 0.42, -30.0), Mats.get_mat("metal"), true, Vector3.ZERO, "mesa_exame")
 	StationKit.stain(root, Vector3(-8.0, D2, -28.6), Vector2(2.0, 1.0), true)
@@ -366,10 +399,10 @@ static func _build_deck2(root: Node3D) -> void:
 	StationKit.crates(root, Vector3(-34.0, D2, 2.0), 3)
 	Director.register_poi("radio", Vector3(-30, D2, 0))
 
-	var lift_a2 := StationKit.lift(root, Vector3(9.0, D2, -16.0), Vector3(9.0, D1, -16.0))
-	Director.register_prop(lift_a2["platform"])
-	var lift_b := StationKit.lift(root, Vector3(16.0, D2, 8.0), Vector3(16.0, D3, 8.0))
+	var lift_b := StationKit.lift(root, LIFT_B_BOTTOM, LIFT_B_TOP, Vector3(2.5, 0.3, 2.5),
+			Vector3(-1.6, 0.0, 0.0), "MONTACARGA — CONVES 3", Vector3(0, 0, -1))
 	Director.register_prop(lift_b["platform"])
+	Director.register_poi("lift_b", LIFT_B_BOTTOM + Vector3(-1.6, 0, 0))
 
 
 # ================================================================ CONVÉS 3
@@ -396,7 +429,7 @@ static func _build_deck3(root: Node3D) -> void:
 	StationKit.console(root, Vector3(4.0, D3, -20.0), 0.0, "terminal",
 			{"docs": ["cam_log_11"], "title": "MONITOR DE CÂMERAS — CAM-07"})
 	StationKit.console(root, Vector3(0.0, D3, -20.5), 0.0, "code",
-			{"prompt": "SALA SEGURA — CÓDIGO", "code": "1147",
+			{"prompt": "SALA SEGURA — CÓDIGO", "code": "1104",
 			 "on_success": func() -> void:
 				GameState.set_flag("cofre_aberto")
 				UI.show_note("SALA SEGURA", "Armário de emergência aberto. Dentro: um cartão de engenharia e uma gravação.")
@@ -425,40 +458,43 @@ static func _build_deck3(root: Node3D) -> void:
 	Director.register_poi("camara_sino", Vector3(0, D3, 27))
 	Director.register_poi("sino", Vector3(0, D3, 25))
 
-	# ---- ECLUSA INFERIOR
-	_mk(root, "Eclusa", -40.0, 18.0, -22.0, 32.0, D3, 3.2, {
+	# ---- ECLUSA INFERIOR (a oeste do anel, despressurizada)
+	_mk(root, "Eclusa", -40.0, -8.0, -18.0, 8.0, D3, 3.4, {
 		"name": "Eclusa",
 		"wall": Mats.get_mat("metal_rust"),
-		"skip_walls": ["n"],
-		"lamps": _lamp_row(true, -38.0, -24.0, 25.0, 2, true, 0.2),
-	}, "eclusa", "ECLUSA INFERIOR")
-	StationKit.console(root, Vector3(-38.0, D3, 30.0), PI, "photo", {"doc": "eclusa_warning"})
-	G3D.cyl(root, 3.0, 0.6, Vector3(-31.0, D3 + 0.3, 25.0), Mats.get_mat("metal_rust"), Vector3.ZERO, true)
-	G3D.sign(root, "ESCOTILHA INFERIOR\nACESSO RESTRITO", Vector3(-31.0, D3 + 2.2, 22.0), 0.0, 36, Color(0.9, 0.4, 0.3))
-	Director.register_poi("eclusa", Vector3(-31, D3, 25))
+		"skip_walls": ["e"],
+		"pipes": true,
+		"lamps": _lamp_row(false, -6.0, 6.0, -32.0, 3, true, 0.18),
+	}, "eclusa", "ECLUSA INFERIOR — SETOR DESPRESSURIZADO")
+	StationKit.console(root, Vector3(-36.0, D3, 6.0), -PI * 0.5, "photo", {"doc": "eclusa_warning"})
+	G3D.cyl(root, 2.6, 0.6, Vector3(-36.0, D3 + 0.3, 0.0), Mats.get_mat("metal_rust"), Vector3.ZERO, true)
+	G3D.sign(root, "ESCOTILHA INFERIOR\nACESSO RESTRITO", Vector3(-36.0, D3 + 2.4, -2.6), 0.0, 34, Color(0.9, 0.4, 0.3))
+	G3D.hazard_stripe(root, false, Vector3(-36.0, D3, -3.4), 5.0, 0.35)
+	Director.register_poi("eclusa", Vector3(-30, D3, 0))
 
 	# ---- CORREDOR DE OBSERVAÇÃO (até a porta do módulo)
-	_mk(root, "CorredorObs", 18.0, -1.5, 32.0, 1.5, D3, 3.2, {
+	_mk(root, "CorredorObs", 18.0, -2.4, 36.0, 2.4, D3, 3.2, {
 		"name": "CorredorObs",
 		"floor": Mats.get_mat("floor_grating"),
 		"wall": Mats.get_mat("wall"),
 		"skip_walls": ["w", "e"],
 		"pipes": true,
-		"lamps": _lamp_row(true, 19.0, 31.0, 0.0, 5, true),
+		"doors": [{"side": "n", "at": 26.0, "w": 1.7, "h": 2.2, "type": "door", "id": "selada",
+				   "name": "MÓDULO DE OBSERVAÇÃO", "auto": false, "locked": true,
+				   "lock_reason": "SELADO POR DENTRO"}],
+		"ceil_holes": [{"x1": 32.5, "z1": -1.7, "x2": 35.7, "z2": 1.7}],
+		"lamps": _lamp_row(true, 19.0, 35.0, 0.0, 5, true),
 	}, "corredor_obs", "CORREDOR DE OBSERVAÇÃO")
-	# parede final com a porta de observação (abre sozinha no capítulo 2)
-	G3D.wall(root, false, -1.5, 1.5, 32.5, D3, 3.2, Mats.get_mat("wall"), 0.3,
-			[{"at": 0.65, "width": 1.7, "height": 2.2, "base": 0.0}])
-	var obs_door := Door.new()
-	obs_door.position = Vector3(32.5, D3, 0.0)
-	root.add_child(obs_door)
-	obs_door.setup("obs", "MÓDULO DE OBSERVAÇÃO", false, 1.7, 2.2, false, false, "", "")
-	Director.register_door("obs", obs_door)
+	# por trás da porta selada: chapa soldada (o módulo foi isolado por dentro)
+	G3D.box(root, Vector3(2.2, 2.5, 0.18), Vector3(26.0, D3 + 1.25, -2.05), Mats.get_mat("metal_rust"), true, Vector3.ZERO, "chapa_soldada")
+	G3D.label3d(root, "SOLDADO POR DENTRO - SEM ACESSO", Vector3(26.0, D3 + 2.0, -1.55), PI, 0.0045, Color(0.85, 0.5, 0.35))
 	StationKit.camera_fixture(root, "cam_08", "CAM-10 CORREDOR OBS.", Vector3(19.5, D3 + 2.8, -1.2), 1.2, "OBSERVAÇÃO")
+	StationKit.shaft_marks(root, 34.1, 0.0, 3.2, D3)
 	Director.register_poi("corredor_obs", Vector3(26, D3, 0))
-	var lift_c := StationKit.lift(root, Vector3(37.0, D3, 0.0), Vector3(37.0, D4, 0.0))
+	var lift_c := StationKit.lift(root, LIFT_C_BOTTOM, LIFT_C_TOP, Vector3(2.5, 0.3, 2.5),
+			Vector3(-2.7, 0.0, -1.2), "MONTACARGA — OBSERVACAO", Vector3(-1, 0, 0))
 	Director.register_prop(lift_c["platform"])
-	Director.register_poi("lift_c", Vector3(37.0, D3, 1.6))
+	Director.register_poi("lift_c", LIFT_C_BOTTOM + Vector3(-2.4, 0, 0))
 
 
 static func _sal5_core(root: Node3D, pos: Vector3) -> void:
@@ -498,10 +534,27 @@ static func _sal5_core(root: Node3D, pos: Vector3) -> void:
 
 # ================================================================ CONVÉS 4
 static func _build_deck4(root: Node3D) -> void:
+	# antecâmara: onde o monta-carga chega, ligada ao módulo por uma passagem
+	_mk(root, "Antessala", 14.0, -6.0, 36.0, 6.0, D4, 3.2, {
+		"name": "Antessala",
+		"wall": Mats.get_mat("wall_dark"),
+		"skip_walls": ["w"],
+		"pipes": true,
+		"floor_holes": [HOLE_C],
+		"lamps": _lamp_row(true, 16.0, 34.0, 0.0, 4, false, 0.25),
+	}, "antessala", "ANTECÂMARA DO MÓDULO DE OBSERVAÇÃO")
+	# moldura da passagem: batentes laterais + verga (o vão fica livre para passar)
+	G3D.box(root, Vector3(0.5, 3.2, 0.45), Vector3(14.0, D4 + 1.6, -1.4), Mats.get_mat("wall_dark"), true, Vector3.ZERO, "batente")
+	G3D.box(root, Vector3(0.5, 3.2, 0.45), Vector3(14.0, D4 + 1.6, 1.4), Mats.get_mat("wall_dark"), true, Vector3.ZERO, "batente")
+	G3D.box(root, Vector3(0.5, 0.5, 2.8), Vector3(14.0, D4 + 2.45, 0.0), Mats.get_mat("wall_dark"), true, Vector3.ZERO, "verga")
+	StationKit.shaft_marks(root, 34.1, 0.0, 3.2, D4)
+	StationKit.camera_fixture(root, "cam_10", "CAM-12 ANTECÂMARA", Vector3(35.4, D4 + 2.8, 5.4), -2.4, "ANTECÂMARA")
+	Director.register_poi("antessala", Vector3(24, D4, 0))
 	var r := _mk(root, "Observatorio", -14.0, -6.0, 14.0, 20.0, D4, 6.0, {
 		"name": "Observatorio",
 		"wall": Mats.get_mat("wall_dark"),
 		"floor": Mats.get_mat("floor"),
+		"doors": [{"side": "e", "at": 0.0, "w": 2.4, "h": 2.6, "type": "open"}],
 		"windows": [{"side": "s", "at": 0.0, "w": 20.0, "h": 5.0, "base": 0.5, "type": "big"}],
 		"lamps": [{"pos": Vector2(-8, -2.0), "along_x": true, "emergency": true, "energy": 0.22},
 				  {"pos": Vector2(8, -2.0), "along_x": true, "emergency": true, "energy": 0.22}],
@@ -513,7 +566,7 @@ static func _build_deck4(root: Node3D) -> void:
 	for i in 4:
 		G3D.cyl(root, 0.06, 2.0, Vector3(-1.4 + float(i) * 0.9, D4 + 1.9, 2.0), Mats.get_mat("rubber"), Vector3.ZERO, false)
 	StationKit.console(root, Vector3(-11.0, D4, 8.0), 0.0, "terminal",
-			{"docs": ["mirror_proto", "obs_log_1"], "title": "CONSOLE DO PROTOCOLO ESPELHO"})
+			{"docs": ["obs_log_1", "mirror_proto"], "title": "CONSOLE DO PROTOCOLO ESPELHO"})
 	# console final: o ECHO
 	var echo := StationKit.console(root, Vector3(11.0, D4, 8.0), PI * 0.0, "custom", {
 		"prompt": "Usar console ECHO — responder ao oceano",

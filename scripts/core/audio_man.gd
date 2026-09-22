@@ -424,7 +424,28 @@ func play_3d(name: String, pos: Vector3, volume_db := 0.0, pitch := 1.0, max_dis
 
 
 # ================================================================ VOZES
+## Vozes da tripulação (as gravações da estação).
+## A lista é EXPLÍCITA de propósito: em build exportada o DirAccess não enumera
+## o conteúdo de res:// (fica dentro do .pck), e a estação terminava muda no
+## jogo que o jogador recebe. A varredura de diretório continua embaixo, só para
+## pegar arquivo novo enquanto se trabalha no editor.
+const VOICES := [
+	"iris_01", "iris_02", "andrei_01", "andrei_02", "sal_01", "sal_02",
+	"voz_extra", "nadia_01", "tomas_01",
+]
+
+
 func _load_voices() -> void:
+	for key: String in VOICES:
+		for ext: String in ["mp3", "ogg", "wav"]:
+			var path := VOICE_DIR + key + "." + ext
+			if not ResourceLoader.exists(path):
+				continue
+			var res := load(path) as AudioStream
+			if res != null:
+				_voices[key] = res
+				break
+	# editor: pega também qualquer gravação nova que ainda não esteja na lista
 	var d := DirAccess.open(VOICE_DIR)
 	if d == null:
 		return
@@ -435,9 +456,11 @@ func _load_voices() -> void:
 		var key := f.get_basename()
 		if key.ends_with(".mp3") or key.ends_with(".ogg"):
 			key = key.get_basename()
-		var res: AudioStream = load(VOICE_DIR + f) as AudioStream
-		if res != null:
-			_voices[key] = res
+		if _voices.has(key):
+			continue
+		var res2: AudioStream = load(VOICE_DIR + f) as AudioStream
+		if res2 != null:
+			_voices[key] = res2
 
 
 func has_voice(key: String) -> bool:

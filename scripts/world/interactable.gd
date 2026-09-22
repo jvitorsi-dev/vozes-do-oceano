@@ -36,6 +36,10 @@ static func create(prompt: String, box: Vector3, offset := Vector3.ZERO,
 	return it
 
 
+func _ready() -> void:
+	add_to_group("interactables")
+
+
 func prompt() -> String:
 	if not enabled:
 		return ""

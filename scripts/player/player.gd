@@ -15,7 +15,7 @@ var walk_speed := 2.9
 var sprint_speed := 4.7
 var crouch_speed := 1.5
 var accel := 12.0
-var mouse_sens := 0.0021
+var mouse_sens := 0.0026
 var fov := 78.0
 
 var camera: Camera3D
@@ -29,6 +29,10 @@ var stress := 0.0
 var _bob := 0.0
 var _step_dist := 0.0
 var _crouching := false
+var _step_cd := 0.0
+var _capture_watch := 0.0
+var _dragging := false
+var _capture_negado := false
 var _target_inter: Interactable = null
 var _breath_player: AudioStreamPlayer
 var _breath_t := 0.0
@@ -39,6 +43,7 @@ var _has_looked := false
 
 
 func _ready() -> void:
+	mouse_sens = GameState.mouse_sens_pref
 	add_to_group("player")
 	motion_mode = CharacterBody3D.MOTION_MODE_GROUNDED
 	floor_snap_length = 0.4
@@ -96,19 +101,99 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	# (o olhar com o mouse fica em _input: ver _input() abaixo)
 	if UI.blocked or not controllado:
 		return
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		var mm := event as InputEventMouseMotion
-		rotate_y(-mm.relative.x * mouse_sens)
-		camera.rotation.x = clampf(camera.rotation.x - mm.relative.y * mouse_sens, -1.45, 1.45)
 	if event.is_action_pressed("interact"):
 		_try_interact()
 	if event.is_action_pressed("torch"):
 		toggle_flashlight()
+	if event.is_action_pressed("recenter"):
+		_request_mouse_capture()
+		UI.show_note("MOUSE", "Cursor preso ao jogo (F1). Se o ponteiro voltar a aparecer, clique na janela ou aperte F1.")
+	if event.is_action_pressed("diag"):
+		_relatorio_mouse()
+
+
+## Olhar e captura do mouse.
+##
+## Fica em _input (e não em _unhandled_input) de propósito: qualquer Control do
+## HUD com mouse_filter STOP engoliria o movimento relativo antes do jogador —
+## era assim que o mouse "morria" em algumas telas/plataformas.
+func _input(event: InputEvent) -> void:
+	var jogavel := controllado and not UI.blocked
+	if event is InputEventMouseMotion:
+		var mm := event as InputEventMouseMotion
+		# screen_relative: movimento em pixels de TELA, imune à escala da janela.
+		# (relative é multiplicado pela escala do viewport: em janela pequena a
+		# câmera girava 2,5x mais rápido; em tela grande, mais devagar.)
+		var rel := mm.screen_relative
+		if rel == Vector2.ZERO:
+			rel = mm.relative
+		if jogavel and _dragging and rel != Vector2.ZERO:
+			# olhar por arrasto: não depende de captura nenhuma
+			look(rel * 1.15)
+		elif jogavel and rel != Vector2.ZERO:
+			# se o sistema ainda não capturou o cursor, pede a captura e olha do mesmo jeito
+			if not mouse_captured():
+				_request_mouse_capture()
+			look(rel)
+	elif event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.button_index == MOUSE_BUTTON_LEFT:
+			if mb.pressed:
+				if jogavel and not UI.blocked:
+					# arrastar com o botão esquerdo gira a câmera mesmo quando o
+					# navegador/sistema NÃO permite capturar o cursor (iframe,
+					# Wayland, macOS sem permissão, janela sem foco)
+					if not mouse_captured() and not _capture_negado:
+						_request_mouse_capture()
+					if not mouse_captured():
+						_dragging = true
+						UI.hint_mouse(true)
+			else:
+				_dragging = false
+
+
+## Aplica um deslocamento relativo do mouse na câmera.
+## Diagnóstico do mouse (F3): mostra na tela o que o motor está recebendo.
+## Serve para o jogador (ou quem dá suporte) ver onde está o problema.
+func _relatorio_mouse() -> void:
+	var janela := get_window()
+	UI.show_note("DIAGNÓSTICO DO MOUSE", "modo=%d (2 = capturado) · capturado=%s\njanela=%dx%d · tela interna=%dx%d · escala=%.2f\nsensibilidade=%.4f rad/px · F1 prende o cursor" % [
+		Input.mouse_mode, str(mouse_captured()),
+		int(janela.size.x), int(janela.size.y),
+		int(get_viewport().get_visible_rect().size.x), int(get_viewport().get_visible_rect().size.y),
+		get_viewport().get_final_transform().get_scale().x, mouse_sens])
+	print("[MOUSE] modo=%d capturado=%s janela=%s tela=%s escala=%.2f sens=%.4f" % [
+		Input.mouse_mode, str(mouse_captured()), janela.size,
+		get_viewport().get_visible_rect().size, get_viewport().get_final_transform().get_scale().x, mouse_sens])
+
+
+func look(rel: Vector2) -> void:
+	rotate_y(-rel.x * mouse_sens)
+	camera.rotation.x = clampf(camera.rotation.x - rel.y * mouse_sens, -1.45, 1.45)
+
+
+## O cursor está preso ao jogo?
+func mouse_captured() -> bool:
+	return Input.mouse_mode == Input.MOUSE_MODE_CAPTURED \
+			or Input.mouse_mode == Input.MOUSE_MODE_CONFINED_HIDDEN
+
+
+## Prende o cursor ao jogo. Alguns sistemas (Wayland, janela sem foco, driver
+## remoto) recusam MOUSE_MODE_CAPTURED: nesse caso usa CONFINED_HIDDEN, que
+## ainda entrega movimento relativo — o jogo continua jogável de qualquer forma.
+func _request_mouse_capture() -> void:
+	if UI.blocked:
+		return
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		Input.mouse_mode = Input.MOUSE_MODE_CONFINED_HIDDEN
 
 
 func _physics_process(delta: float) -> void:
+	_watch_mouse(delta)
 	var can := controllado and not UI.blocked
 	if not can:
 		velocity = velocity.lerp(Vector3.ZERO, clampf(delta * 8.0, 0.0, 1.0))
@@ -141,6 +226,16 @@ func _physics_process(delta: float) -> void:
 		velocity.y -= 6.0 * delta
 	else:
 		velocity.y = -0.5
+
+	# assistência de degrau: soleiras, tampas e a plataforma do monta-carga
+	# (tampo nivelado com o piso) sobem sozinhas até ~0,32 m
+	_step_cd = maxf(0.0, _step_cd - delta)
+	var plano := Vector2(velocity.x, velocity.z).length()
+	if is_on_floor() and _step_cd <= 0.0 and plano > 0.4:
+		var passo := Vector3(velocity.x, 0.0, velocity.z) * delta
+		if test_move(global_transform, passo) and not test_move(global_transform.translated(Vector3(0, 0.32, 0)), passo):
+			velocity.y = 2.6
+			_step_cd = 0.25
 
 	move_and_slide()
 
@@ -194,6 +289,30 @@ func toggle_flashlight() -> void:
 	flashlight.visible = flashlight_on
 	AudioMan.play_2d("click", -12.0, 1.0, "Interface")
 	Director.on_flashlight(flashlight_on, global_position)
+
+
+## Vigia o cursor: sempre que o jogo está jogável o mouse deve estar capturado.
+## Cobre alt-tab, perda de foco, e plataformas que soltam o cursor sozinhas.
+func _watch_mouse(delta: float) -> void:
+	if not controllado or UI.blocked:
+		_capture_watch = 0.0
+		return
+	if mouse_captured():
+		_capture_watch = 0.0
+		UI.hint_mouse(false)
+		return
+	_capture_watch += delta
+	if _capture_watch > 0.35:
+		_capture_watch = 0.0
+		_request_mouse_capture()
+		if not mouse_captured():
+			# o navegador/sistema recusou a captura: avisa o esquema alternativo.
+			# (o jogo continua 100% jogável: arrastar com o botão esquerdo olha)
+			_capture_negado = true
+			UI.hint_mouse(true)
+		else:
+			_capture_negado = false
+			UI.hint_mouse(false)
 
 
 func _update_o2(delta: float) -> void:
@@ -253,6 +372,8 @@ func _try_interact() -> void:
 	if t.use(self):
 		AudioMan.play_2d("click", -14.0, 1.0, "Interface")
 		interacted.emit(t)
+		# o mesmo [E] que abre um painel não pode chegar ao painel recém-criado
+		get_viewport().set_input_as_handled()
 
 
 func _update_breath(delta: float) -> void:

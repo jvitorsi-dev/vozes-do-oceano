@@ -136,7 +136,11 @@ KESSLER: Eu vejo ela no vidro. De fora. Me olhando de dentro do módulo.
 TERRA: ...Argos-4, quanto tempo ela está lá?
 KESSLER: Três dias. Ela não come, não bebe, não pisca. Terra, eu quero ir embora. Autorizem a partida.
 TERRA: Autorizado. Deixem registrado...
-KESSLER: Eu não vou deixar nada registrado. Se eu escrever o que vi, ninguém vai me deixar voltar pra casa.""",
+KESSLER: Eu não vou deixar nada registrado. Se eu escrever o que vi, ninguém vai me deixar voltar pra casa.
+[transcrição continua, canal de emergência, voz baixa]
+KESSLER: Terra, se alguém vier depois de nós: eu tranquei tudo na sala segura do comando.
+KESSLER: O código é a data em que ele respondeu pela primeira vez. Onze de abril. Quatro dígitos.
+KESSLER: Não é uma data bonita. É só a data em que o mar deixou de ser paisagem.""",
 			"entry": "e_tripulacao",
 			"on_read": {"flag": "leu_comm_1"},
 		},

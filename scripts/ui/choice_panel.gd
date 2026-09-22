@@ -1,5 +1,8 @@
 class_name ChoicePanel
 extends Control
+
+## evita que o mesmo [E]/[ESC] que abre o painel o feche no mesmo quadro
+var _armed := false
 ## Painel de decisão. As escolhas mexem em duas variáveis invisíveis:
 ## a confiança do oceano e a ressonância do fenômeno.
 
@@ -50,6 +53,7 @@ func _ready() -> void:
 		_buttons.append(b)
 	AudioMan.play_2d("blip_low" if false else "blip", -10.0, 0.9, "Interface")
 	Director.on_decision_open(decision_id)
+	_arm()
 
 
 func _choose(id: String) -> void:
@@ -59,6 +63,8 @@ func _choose(id: String) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not _armed:
+		return
 	if event is InputEventKey and event.is_pressed():
 		var k := (event as InputEventKey).keycode
 		if k >= KEY_1 and k <= KEY_9:
@@ -66,3 +72,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			var opts: Array = decision.get("options", [])
 			if i < opts.size():
 				_choose(String(opts[i].get("id", "")))
+
+func _arm() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_armed = true

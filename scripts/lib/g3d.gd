@@ -195,7 +195,7 @@ static func ceiling_lamp(parent: Node3D, pos: Vector3, along_x: bool, length: fl
 	light.position = Vector3(0, -0.35, 0)
 	light.light_energy = light_energy
 	light.light_color = Color(1.0, 0.30, 0.20) if emergency else color
-	light.omni_range = 9.0
+	light.omni_range = 14.0
 	light.shadow_enabled = false
 	light.light_specular = 0.6
 	g.add_child(light)
@@ -205,7 +205,7 @@ static func ceiling_lamp(parent: Node3D, pos: Vector3, along_x: bool, length: fl
 ## Tubulação aparente ao longo de um corredor (detalhe de chão/teto).
 static func pipes(parent: Node3D, along_x: bool, from_v: float, to_v: float, fixed: float,
 		y: float, count: int = 3, radius: float = 0.09, mat: Material = null) -> void:
-	var m: Material = mat if mat != null else Mats.get_mat("metal_rust")
+	var m: Material = mat if mat != null else Mats.get_mat("pipe")
 	for i in count:
 		var off := float(i) * (radius * 2.6)
 		var length := absf(to_v - from_v)

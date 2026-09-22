@@ -1,5 +1,8 @@
 class_name RadioPanel
 extends Control
+
+## evita que o mesmo [E]/[ESC] que abre o painel o feche no mesmo quadro
+var _armed := false
 ## Transceptor de bordo. Cada sinal tem frequência, ruído e uma voz —
 ## algumas vozes são da Terra, outras não têm origem registrada.
 
@@ -88,6 +91,7 @@ func _ready() -> void:
 
 	_build_list()
 	_tune(0)
+	_arm()
 
 
 func _build_list() -> void:
@@ -151,6 +155,8 @@ func _exit_tree() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not _armed:
+		return
 	if event.is_action_pressed("interact"):
 		_tune(idx + 1)
 		get_viewport().set_input_as_handled()
@@ -160,3 +166,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_tune(idx + 1)
 		elif k == KEY_LEFT or k == KEY_A:
 			_tune(idx - 1)
+
+func _arm() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_armed = true

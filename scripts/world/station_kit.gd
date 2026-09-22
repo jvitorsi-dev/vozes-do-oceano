@@ -5,6 +5,63 @@ extends RefCounted
 
 const CRT := preload("res://assets/shaders/crt.gdshader")
 
+# ================================================================ VÃOS NO PISO (POÇOS)
+## Laje com vãos: usada para os poços dos monta-cargas atravessarem os conveses.
+static func slab_with_holes(parent: Node3D, x1: float, z1: float, x2: float, z2: float, y: float,
+		mat: Material, holes: Array, thick: float = 0.3, above := false) -> void:
+	if holes.is_empty():
+		if above:
+			G3D.ceiling_slab(parent, x1, z1, x2, z2, y, mat, thick)
+		else:
+			G3D.floor_slab(parent, x1, z1, x2, z2, y, mat, thick)
+		return
+	var rects: Array = [Rect2(x1, z1, x2 - x1, z2 - z1)]
+	for h: Dictionary in holes:
+		var hole := Rect2(float(h["x1"]), float(h["z1"]), float(h["x2"]) - float(h["x1"]), float(h["z2"]) - float(h["z1"]))
+		var next: Array = []
+		for r: Rect2 in rects:
+			next.append_array(_rect_subtract(r, hole))
+		rects = next
+	for r: Rect2 in rects:
+		if r.size.x < 0.08 or r.size.y < 0.08:
+			continue
+		if above:
+			G3D.ceiling_slab(parent, r.position.x, r.position.y, r.end.x, r.end.y, y, mat, thick)
+		else:
+			G3D.floor_slab(parent, r.position.x, r.position.y, r.end.x, r.end.y, y, mat, thick)
+
+
+static func _rect_subtract(a: Rect2, b: Rect2) -> Array:
+	var ix1 := maxf(a.position.x, b.position.x)
+	var ix2 := minf(a.end.x, b.end.x)
+	var iz1 := maxf(a.position.y, b.position.y)
+	var iz2 := minf(a.end.y, b.end.y)
+	if ix1 >= ix2 or iz1 >= iz2:
+		return [a]
+	var out: Array = []
+	if iz1 > a.position.y:
+		out.append(Rect2(a.position.x, a.position.y, a.size.x, iz1 - a.position.y))
+	if iz2 < a.end.y:
+		out.append(Rect2(a.position.x, iz2, a.size.x, a.end.y - iz2))
+	if ix1 > a.position.x:
+		out.append(Rect2(a.position.x, iz1, ix1 - a.position.x, iz2 - iz1))
+	if ix2 < a.end.x:
+		out.append(Rect2(ix2, iz1, a.end.x - ix2, iz2 - iz1))
+	return out
+
+
+## Sinalização do poço: faixas de perigo em volta do vão (sem colisão para
+## não atrapalhar o jogador ao atravessar).
+static func shaft_marks(parent: Node3D, cx: float, cz: float, size: float, y: float) -> void:
+	var half := size * 0.5
+	var hm := Mats.get_mat("hazard")
+	G3D.box(parent, Vector3(size + 0.6, 0.04, 0.3), Vector3(cx, y + 0.03, cz - half - 0.2), hm, false, Vector3.ZERO, "faixa_poco")
+	G3D.box(parent, Vector3(size + 0.6, 0.04, 0.3), Vector3(cx, y + 0.03, cz + half + 0.2), hm, false, Vector3.ZERO, "faixa_poco")
+	G3D.box(parent, Vector3(0.3, 0.04, size + 0.6), Vector3(cx - half - 0.2, y + 0.03, cz), hm, false, Vector3.ZERO, "faixa_poco")
+	G3D.box(parent, Vector3(0.3, 0.04, size + 0.6), Vector3(cx + half + 0.2, y + 0.03, cz), hm, false, Vector3.ZERO, "faixa_poco")
+	G3D.label3d(parent, "POCO DE CARGA", Vector3(cx, y + 0.08, cz + half + 1.0), 0.0, 0.0055, Color(0.92, 0.72, 0.32))
+
+
 # ================================================================ SALAS
 static func room(parent: Node3D, x1: float, z1: float, x2: float, z2: float,
 		y: float, h: float, opts: Dictionary = {}) -> Dictionary:
@@ -16,9 +73,9 @@ static func room(parent: Node3D, x1: float, z1: float, x2: float, z2: float,
 	var wall_mat: Material = opts.get("wall", Mats.get_mat("wall_dark"))
 	var ceil_mat: Material = opts.get("ceil", Mats.get_mat("ceiling"))
 
-	G3D.floor_slab(root, x1, z1, x2, z2, y, floor_mat)
+	slab_with_holes(root, x1, z1, x2, z2, y, floor_mat, opts.get("floor_holes", []), 0.3, false)
 	if not bool(opts.get("no_ceiling", false)):
-		G3D.ceiling_slab(root, x1, z1, x2, z2, y + h, ceil_mat)
+		slab_with_holes(root, x1, z1, x2, z2, y + h, ceil_mat, opts.get("ceil_holes", []), 0.25, true)
 
 	var doors: Array = opts.get("doors", [])
 	var windows: Array = opts.get("windows", [])
@@ -201,6 +258,9 @@ static func console(parent: Node3D, pos: Vector3, yaw: float, kind: String, payl
 		color = Color(0.3, 0.35, 0.35)
 	var mon := monitor(g, Vector3(-0.12, h + 0.32, -0.06), 0.0, opts.get("size", Vector2(0.5, 0.36)), color, off)
 	mon["node"].rotation.x = -0.28
+	# o requisito de energia viaja junto com o console: terminais de emergência
+	# (hangar, depósito, cabines, fita) funcionam antes de a energia voltar
+	mon["needs_power"] = bool(opts.get("needs_power", true))
 
 	# cabos e detalhe
 	G3D.cyl(g, 0.03, 0.5, Vector3(0.35, h * 0.5, -0.3), Mats.get_mat("rubber"), Vector3(0.4, 0, 0.2), false)
@@ -229,7 +289,7 @@ static func _default_prompt(kind: String) -> String:
 static func _use_console(_player: Node3D, _it: Interactable, g: Node3D, kind: String,
 		payload: Dictionary, mon: Dictionary) -> void:
 	AudioMan.play_3d("blip", g.global_position, -6.0)
-	var dead: bool = mon.get("material", null) != null and not GameState.has("energia_ok") and bool(payload.get("needs_power", kind != "code"))
+	var dead: bool = bool(mon.get("needs_power", false)) and not GameState.has("energia_ok") and kind != "code"
 	match kind:
 		"terminal":
 			if dead:
@@ -292,10 +352,7 @@ static func tape_player(parent: Node3D, pos: Vector3, yaw: float, doc_id: String
 	g.add_child(led)
 	var inter := Interactable.create("Reproduzir fita", Vector3(0.9, 1.0, 0.9), Vector3(0, 1.1, 0),
 			func(_p: Node3D, _i: Interactable) -> void:
-				if not GameState.has("energia_ok"):
-					UI.show_note("SEM ENERGIA", "O gravador precisa de corrente.")
-					return
-				UI.open_docs([doc_id], "REPRODUTOR DE FITA")
+				UI.open_docs([doc_id], "REPRODUTOR DE FITA (BATERIA PRÓPRIA)")
 				if voice != "":
 					UI.play_voice_now(voice, g.global_position))
 	g.add_child(inter)
@@ -495,34 +552,56 @@ static func sign_panel(parent: Node3D, text: String, pos: Vector3, yaw: float, w
 	G3D.label3d(g, text, Vector3(0, 0, 0.05), 0.0, 0.0045, Color(0.55, 0.85, 0.95))
 
 
-static func lift(parent: Node3D, bottom: Vector3, top: Vector3, size := Vector3(3.0, 0.3, 3.0)) -> Dictionary:
+static func lift(parent: Node3D, bottom: Vector3, top: Vector3, size := Vector3(3.0, 0.3, 3.0),
+		call_offset := Vector3(2.4, 0.0, 0.0), nome := "MONTACARGA",
+		open_dir := Vector3(-1.0, 0.0, 0.0)) -> Dictionary:
 	var platform := AnimatableBody3D.new()
 	platform.name = "MontaCarga"
 	platform.sync_to_physics = true
 	platform.position = bottom
 	parent.add_child(platform)
-	G3D.box(platform, size, Vector3(0, 0, 0), Mats.get_mat("floor_grating"), true, Vector3.ZERO, "plataforma")
-	G3D.box(platform, Vector3(size.x, 1.1, 0.08), Vector3(0, 0.55, -size.z * 0.5), Mats.get_mat("metal"), true, Vector3.ZERO, "guarda")
-	G3D.box(platform, Vector3(0.08, 1.1, size.z), Vector3(-size.x * 0.5, 0.55, 0), Mats.get_mat("metal"), true, Vector3.ZERO, "guarda2")
-	G3D.box(platform, Vector3(0.08, 1.1, size.z), Vector3(size.x * 0.5, 0.55, 0), Mats.get_mat("metal"), true, Vector3.ZERO, "guarda3")
-	var panel := Interactable.create("Chamar monta-carga", Vector3(0.6, 0.9, 0.6), Vector3(size.x * 0.5 + 0.3, 1.30, 0),
-			func(_p: Node3D, _i: Interactable) -> void:
-				Director.lift_action(platform, {"bottom": bottom, "top": top}))
-	platform.add_child(panel)
+	G3D.box(platform, size, Vector3.ZERO, Mats.get_mat("floor_grating"), true, Vector3.ZERO, "plataforma")
+	# sem guarda-corpo: o poço é perigoso de verdade (cair = descer um convés)
+	G3D.box(platform, Vector3(size.x, 0.05, size.z), Vector3(0, 0.17, 0), Mats.get_mat("hazard"), false, Vector3.ZERO, "faixa")
+	var o := open_dir.normalized()
 	var lamp := OmniLight3D.new()
-	lamp.position = Vector3(0, 2.0, 0)
-	lamp.light_energy = 0.25
-	lamp.omni_range = 6.0
+	lamp.position = Vector3(0, 2.2, 0)
+	lamp.light_energy = 0.30
+	lamp.omni_range = 7.0
 	lamp.shadow_enabled = false
 	platform.add_child(lamp)
+	Director.register_light(lamp)
+
+	var payload := {"bottom": bottom, "top": top}
+	var lamp_pos := Vector3(-o.x * (size.x * 0.5 - 0.5), 1.35, -o.z * (size.z * 0.5 - 0.5))
+	# a área cobre a plataforma toda: quem está em cima do monta-carga alcança o painel
+	var on_platform := Interactable.create("Operar monta-carga", Vector3(2.0, 1.8, 2.0), Vector3(0, 0.9, 0),
+			func(_p: Node3D, _i: Interactable) -> void: Director.lift_action(platform, payload))
+	platform.add_child(on_platform)
+
+	# painéis de chamada em cada nível: pedem a plataforma PARA AQUELE nível
+	for wp: Vector3 in [bottom, top]:
+		var nivel := "bottom" if wp == bottom else "top"
+		var posto := Node3D.new()
+		posto.position = wp + call_offset + Vector3(0.0, 0.13, 0.0)
+		parent.add_child(posto)
+		G3D.box(posto, Vector3(0.42, 0.55, 0.16), Vector3(0, 1.25, 0), Mats.get_mat("metal_rust"), false, Vector3.ZERO, "painel")
+		G3D.box(posto, Vector3(0.34, 0.06, 0.05), Vector3(0, 1.42, 0.09), Mats.get_mat("screen_amber"), false, Vector3.ZERO, "visor")
+		G3D.cyl(posto, 0.05, 1.0, Vector3(0, 0.5, 0), Mats.get_mat("metal"), Vector3.ZERO, false)
+		G3D.label3d(posto, nome, Vector3(0, 1.60, 0), 0.0, 0.0045, Color(0.85, 0.78, 0.55))
+		var cargo := {"bottom": bottom, "top": top, "call_to": nivel}
+		var painel := Interactable.create("Chamar monta-carga", Vector3(1.2, 1.4, 1.2), Vector3(0, 1.2, 0),
+				func(_p: Node3D, _i: Interactable) -> void: Director.lift_action(platform, cargo))
+		posto.add_child(painel)
+
 	# guias verticais
-	var height := absf(top.y - bottom.y)
-	G3D.cyl(parent, 0.12, height + 1.0, Vector3(bottom.x + size.x * 0.5 + 0.2, (bottom.y + top.y) * 0.5, bottom.z), Mats.get_mat("metal_rust"))
-	G3D.cyl(parent, 0.12, height + 1.0, Vector3(bottom.x - size.x * 0.5 - 0.2, (bottom.y + top.y) * 0.5, bottom.z), Mats.get_mat("metal_rust"))
+	var altura := absf(top.y - bottom.y)
+	for sx: float in [size.x * 0.5 + 0.22, -size.x * 0.5 - 0.22]:
+		G3D.cyl(parent, 0.11, altura + 1.2, Vector3(bottom.x + sx, (bottom.y + top.y) * 0.5, bottom.z),
+				Mats.get_mat("metal_rust"))
 	return {"platform": platform, "bottom": bottom, "top": top}
 
 
-## Figura humana feita de primitivas — usada por manifestações e silhuetas.
 static func figure(parent: Node3D, pos: Vector3, yaw: float, mat: Material, height := 1.74) -> Node3D:
 	var g := Node3D.new()
 	g.name = "Figura"

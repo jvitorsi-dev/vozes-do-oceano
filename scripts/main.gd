@@ -23,6 +23,7 @@ var _shot_i := -1
 var _shot_only := ""
 var _selftest := false
 var _probe_mode := false
+var _matsheet := false
 var _play_menu := false
 var _play := false
 var _shot_frames := 0
@@ -63,7 +64,7 @@ func _ready() -> void:
 	if GameState.has("energia_ok"):
 		LampGrid.power_on()
 	else:
-		LampGrid.set_emergency_energy(0.15)
+		LampGrid.set_emergency_energy(0.45)
 	AudioMan.music_intensity(0.12)
 	AudioMan.set_ocean_energy(0.18)
 	AudioMan.play_2d("sea", -30.0)
@@ -83,6 +84,8 @@ func _ready() -> void:
 			_play = true
 			_play_menu = true
 			_selftest = true
+		elif a == "--matsheet":
+			_matsheet = true
 		elif a == "--probe":
 			_probe_mode = true
 			_autostart = true
@@ -93,17 +96,25 @@ func _ready() -> void:
 			_shot_only = a.substr(7)
 			_shot = true
 			_autostart = true
+	if _matsheet:
+		_dump_mats()
+		get_tree().quit()
+		return
 	if _autostart:
 		_on_menu_start()
 		if _play:
-			PlayBot.start(self)
+			# carga dinâmica: o bot de QA não deve depender do cache de classes
+			# globais do editor (assim o jogo também roda em build exportada)
+			var pb: GDScript = load("res://scripts/dev/playbot.gd")
+			pb.start(self)
 		elif _probe_mode:
 			Director.after(0.6, func() -> void: _probe(Vector3(7.4, 40.6, -16.3), 3.0))
 		elif _selftest:
 			_selftest_run()
 	elif _play_menu:
 		UI.open_menu()
-		PlayBot.start(self)
+		var pb2: GDScript = load("res://scripts/dev/playbot.gd")
+		pb2.start(self)
 	else:
 		UI.open_menu()
 
@@ -115,8 +126,8 @@ func _build_environment() -> void:
 	e.background_mode = Environment.BG_COLOR
 	e.background_color = Color(0.006, 0.010, 0.018)
 	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	e.ambient_light_color = Color(0.16, 0.22, 0.30)
-	e.ambient_light_energy = 0.42
+	e.ambient_light_color = Color(0.18, 0.245, 0.325)
+	e.ambient_light_energy = 0.72
 	e.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	e.tonemap_white = 3.0
 	e.glow_enabled = true
@@ -134,6 +145,38 @@ func _build_environment() -> void:
 	e.adjustment_contrast = 1.12
 	e.adjustment_saturation = 0.88
 	e.adjustment_brightness = 1.0
+	# --- recursos de Forward+ (ignorados no renderizador de compatibilidade) ---
+	# oclusão de ambiente: encaixa móveis, painéis e consoles no espaço
+	e.ssao_enabled = true
+	e.ssao_radius = 1.35
+	e.ssao_intensity = 2.4
+	e.ssao_power = 1.8
+	e.ssao_detail = 0.6
+	e.ssao_light_affect = 0.25
+	# iluminação indireta em tela: cor "vaza" das superfícies claras
+	e.ssil_enabled = true
+	e.ssil_intensity = 1.1
+	e.ssil_radius = 6.0
+	# reflexos em tela: o piso encerado e o vidro passam a refletir o corredor
+	e.ssr_enabled = true
+	e.ssr_max_steps = 48
+	e.ssr_fade_in = 0.25
+	e.ssr_fade_out = 9.0
+	e.ssr_depth_tolerance = 0.25
+	# neblina volumétrica: dá corpo ao ar da estação e feixes de luz nas lâmpadas
+	e.volumetric_fog_enabled = true
+	e.volumetric_fog_density = 0.012
+	e.volumetric_fog_albedo = Color(0.62, 0.72, 0.80)
+	e.volumetric_fog_emission = Color(0.012, 0.020, 0.026)
+	e.volumetric_fog_emission_energy = 0.7
+	e.volumetric_fog_gi_inject = 0.7
+	e.volumetric_fog_length = 64.0
+	e.volumetric_fog_ambient_inject = 0.4
+	# brilho mais fotográfico
+	e.glow_levels_1 = 0.4
+	e.glow_levels_3 = 0.6
+	e.glow_levels_5 = 0.7
+	e.glow_map_strength = 0.45
 	we.environment = e
 	add_child(we)
 
@@ -262,6 +305,29 @@ func _process(delta: float) -> void:
 
 
 ## Exercita todos os sistemas em sequência para caçar erros de execução.
+## Modo de conferência das texturas: grava albedo, normal e ORM de cada
+## material como PNG, para olhar o trabalho de material sem depender da cena.
+func _dump_mats() -> void:
+	var dir := "/home/user/tex_sheet"
+	DirAccess.make_dir_recursive_absolute(dir)
+	var chaves := ["wall", "wall_dark", "floor", "floor_grating", "ceiling", "metal",
+			"metal_rust", "pipe", "rubber", "fabric", "hazard", "shelf_wood", "paper"]
+	print("[MATS] gravando folha de materiais em ", dir)
+	for k: String in chaves:
+		var m: StandardMaterial3D = Mats.get_mat(k)
+		var alb := m.albedo_texture as Texture2D
+		var nrm := m.normal_texture as Texture2D
+		var orm := m.orm_texture as Texture2D
+		if alb != null:
+			alb.get_image().save_png(dir + "/" + k + "_albedo.png")
+		if nrm != null:
+			nrm.get_image().save_png(dir + "/" + k + "_normal.png")
+		if orm != null:
+			orm.get_image().save_png(dir + "/" + k + "_orm.png")
+		print("[MATS] ", k, " ok")
+	print("[MATS] fim")
+
+
 ## Diagnóstico: lista corpos com colisão perto de um ponto (usado para achar
 ## bloqueadores invisíveis nos corredores).
 func _probe(p: Vector3, raio := 3.0) -> void:
@@ -360,8 +426,9 @@ func _selftest_run() -> void:
 
 
 func _shot_tick() -> void:
-	# modo captura: sem texto de abertura sobre as telas de vitrine
+	# modo captura: luz de trabalho para conferir materiais e geometria
 	if _shot_i < 0:
+		LampGrid.power_on()
 		for c in UI.get_children():
 			if c is IntroSequence:
 				c.queue_free()

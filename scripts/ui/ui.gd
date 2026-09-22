@@ -91,6 +91,7 @@ func _build_hud() -> void:
 
 	# prompt de interação
 	_prompt_box = PanelContainer.new()
+	_prompt_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_prompt_box.add_theme_stylebox_override("panel", UIStyle.panel(Color(0.03, 0.05, 0.06, 0.82), UIStyle.LINE_DIM))
 	_prompt_box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	_prompt_box.position = Vector2(-140, -120)
@@ -104,6 +105,7 @@ func _build_hud() -> void:
 
 	# objetivo (canto superior esquerdo)
 	var obj_box := VBoxContainer.new()
+	obj_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	obj_box.position = Vector2(28, 24)
 	obj_box.add_theme_constant_override("separation", 2)
 	_hud.add_child(obj_box)
@@ -116,6 +118,7 @@ func _build_hud() -> void:
 
 	# relógio / setor (canto superior direito)
 	var clock_box := VBoxContainer.new()
+	clock_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clock_box.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	clock_box.position = Vector2(-330, 24)
 	clock_box.custom_minimum_size = Vector2(300, 0)
@@ -130,6 +133,7 @@ func _build_hud() -> void:
 
 	# setor (centro-topo, transitório)
 	_sector_label = UIStyle.make_label("", 18, Color(0.75, 0.85, 0.9))
+	_sector_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sector_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
 	_sector_label.position = Vector2(-200, 80)
 	_sector_label.custom_minimum_size = Vector2(400, 0)
@@ -139,6 +143,7 @@ func _build_hud() -> void:
 
 	# legendas
 	_sub_box = PanelContainer.new()
+	_sub_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sub_box.add_theme_stylebox_override("panel", UIStyle.panel(Color(0.02, 0.03, 0.04, 0.75), Color(0, 0, 0, 0)))
 	_sub_box.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	_sub_box.position = Vector2(-380, -190)
@@ -156,6 +161,7 @@ func _build_hud() -> void:
 
 	# avisos (toasts)
 	_toasts = VBoxContainer.new()
+	_toasts.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_toasts.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_toasts.position = Vector2(-420, 90)
 	_toasts.custom_minimum_size = Vector2(380, 0)
@@ -175,7 +181,8 @@ func _build_hud() -> void:
 	vb.add_child(_vitals["bat"]["root"])
 
 	# dica de controles
-	_hint = UIStyle.make_label("WASD mover  •  SHIFT correr  •  CTRL agachar  •  E interagir  •  F lanterna  •  TAB diário  •  ESC opções", 12, Color(0.45, 0.58, 0.63))
+	_hint = UIStyle.make_label(_hint_default(), 12, Color(0.45, 0.58, 0.63))
+	_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_hint.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	_hint.position = Vector2(-760, -34)
 	_hint.custom_minimum_size = Vector2(740, 0)
@@ -374,6 +381,38 @@ func flash(color := Color(0.8, 0.9, 1.0), dur := 0.25) -> void:
 
 
 # ================================================================ PAINÉIS
+## Aviso no rodapé quando o cursor está solto (clique para voltar a olhar).
+func hint_mouse(mostrar: bool) -> void:
+	if _hint == null:
+		return
+	if mostrar:
+		_hint.text = "ARRASTE COM O BOTÃO ESQUERDO PARA OLHAR  •  F1 PRENDE O CURSOR"
+		_hint.modulate = Color(1.0, 0.85, 0.55, 1.0)
+		_hint_t = 0.0
+	elif _hint.text.begins_with("ARRASTE"):
+		_hint.text = _hint_default()
+		_hint.modulate = Color(1, 1, 1, 0.9)
+
+
+func _hint_default() -> String:
+	return "WASD mover  •  MOUSE/ARRASTAR olhar  •  SHIFT correr  •  CTRL agachar  •  E interagir  •  F lanterna  •  TAB diário  •  ESC opções"
+
+
+## Recaptura o cursor quando a janela volta ao primeiro plano (alt-tab, diálogos
+## do sistema, launcher). Sem isso o mouse ficava "morto" até reiniciar o jogo.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_IN or what == NOTIFICATION_WM_WINDOW_FOCUS_IN:
+		if not blocked and _menu == null and _panel == null and _ending == null:
+			var p := _player()
+			if p != null:
+				p._request_mouse_capture()
+				hint_mouse(false)
+
+
+func _player() -> Player:
+	return get_tree().get_first_node_in_group("player") as Player
+
+
 func _open_panel(node: Control) -> void:
 	if _panel != null:
 		_panel.queue_free()
@@ -471,6 +510,33 @@ func play_intro() -> void:
 	var iv := IntroSequence.new()
 	add_child(iv)
 	blocked = true
+
+
+## Volta a interface ao estado de "jogo novo" (usado ao reiniciar a expedição).
+func reset_for_new_run() -> void:
+	if _panel != null:
+		_panel.queue_free()
+		_panel = null
+	if _menu != null:
+		_menu.queue_free()
+		_menu = null
+	if _ending != null:
+		_ending.queue_free()
+		_ending = null
+	blocked = false
+	stress = 0.0
+	_sub_queue.clear()
+	_sub_t = 0.0
+	if _sub_box != null:
+		_sub_box.visible = false
+	if _fade != null:
+		_fade.color.a = 0.0
+	if _hint != null:
+		_hint.modulate.a = 1.0
+		_hint_t = 18.0
+	for t: Node in _toasts.get_children():
+		t.queue_free()
+	set_objective(GameState.objective_text)
 
 
 func show_ending(ending_id: String) -> void:

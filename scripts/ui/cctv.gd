@@ -1,5 +1,8 @@
 class_name CCTVScreen
 extends Control
+
+## evita que o mesmo [E]/[ESC] que abre o painel o feche no mesmo quadro
+var _armed := false
 ## Terminal de vigilância. As imagens são o mundo de verdade, renderizado
 ## por um SubViewport em 12 quadros por segundo — o que aparece na tela
 ## está mesmo acontecendo na estação.
@@ -105,6 +108,7 @@ func _ready() -> void:
 	_select(0)
 	# ruído de abertura
 	AudioMan.play_2d("static", -10.0, 1.0, "Radio")
+	_arm()
 
 
 func _refresh_channels() -> void:
@@ -180,6 +184,8 @@ func _exit_tree() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not _armed:
+		return
 	if event.is_action_pressed("interact"):
 		UI.close_panel()
 		get_viewport().set_input_as_handled()
@@ -192,3 +198,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif k == KEY_G:
 			AudioMan.play_2d("static", -8.0, 1.0, "Radio")
 			glitch_burst(1.2, 3.0)
+
+func _arm() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_armed = true

@@ -15,6 +15,8 @@ const ACTIONS := {
 	"pda": [KEY_TAB],
 	"pause": [KEY_ESCAPE],
 	"ui_cancel_alt": [KEY_BACKSPACE],
+	"recenter": [KEY_F1],       # prende o cursor de novo
+	"diag": [KEY_F3],           # diagnóstico do mouse na tela
 }
 
 

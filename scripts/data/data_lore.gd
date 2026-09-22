@@ -157,6 +157,21 @@ static func decisions() -> Dictionary:
 				"gravar": {"resonance": 1, "flag": "gravou_radio", "note": ["TRANSCRIÇÃO", "A voz repetiu o seu indicativo 31 vezes, sem variação. Depois, disse o seu nome completo. Você nunca disse o seu nome completo nesta estação."]},
 			},
 		},
+		"final": {
+			"trigger": "O console ECHO está armado. Tudo o que você viu nesta estação passa por este instante: o oceano espera uma resposta, e ele aprendeu a esperar com paciência de coisa que não tem pressa.",
+			"options": [
+				{"id": "chamado", "label": "FALAR — abrir todos os canais", "detail": "Contar a ele o que você é: seu nome, suas perdas, o que você carrega. Deixá-lo ouvir até o fim."},
+				{"id": "silencio", "label": "CALAR — desligar o Protocolo Espelho", "detail": "Não responder nada. Encerrar o que Íris começou e subir para a órbita alta."},
+				{"id": "partida", "label": "PARTIR — deixar a estação", "detail": "Virar as costas para ÍRIO. Voltar sozinho, sem registro, sem explicação."},
+				{"id": "repeticao", "label": "MOSTRAR OUTRA COISA — algo que ele não tem", "detail": "Entregar a ele um pensamento que ninguém aqui viveu: o que a tripulação poderia ter sido."},
+			],
+			"effects": {
+				"chamado": {"trust": 2, "resonance": 2, "note": ["RESPOSTA", "Você falou com ele por 27 minutos. A superfície de ÍRIO ficou completamente lisa."]},
+				"silencio": {"trust": -2, "resonance": -1, "note": ["RESPOSTA", "Você não respondeu. O silêncio também é um dado, e ele foi registrado."]},
+				"partida": {"trust": -3, "note": ["RESPOSTA", "Você deixou a estação em órbita. Ela vai continuar esperando."]},
+				"repeticao": {"trust": 1, "resonance": 3, "note": ["RESPOSTA", "Você ofereceu a ele um futuro que nunca existiu. O mar aceitou."]},
+			},
+		},
 		"espelho": {
 			"trigger": "O Protocolo Espelho ainda está armado. Bastaria reativá-lo.",
 			"options": [

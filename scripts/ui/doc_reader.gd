@@ -1,5 +1,8 @@
 class_name DocReader
 extends Control
+
+## evita que o mesmo [E]/[ESC] que abre o painel o feche no mesmo quadro
+var _armed := false
 ## Leitor de documentos. Cada tipo de mídia tem seu visual:
 ## monitor (verde CRT), papel (bege gasto), fita (âmbar com onda),
 ## foto (imagem procedural — que muda conforme a estação muda) e manual.
@@ -99,6 +102,7 @@ func _ready() -> void:
 	_build_list()
 	_show(0)
 	AudioMan.play_2d("blip", -12.0, 1.0, "Interface")
+	_arm()
 
 
 func _build_list() -> void:
@@ -187,6 +191,8 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not _armed:
+		return
 	if event.is_action_pressed("interact"):
 		if _reveal < 1.0:
 			_reveal = 1.0
@@ -302,3 +308,8 @@ func _draw_figure(img: Image, cx: int, ground_y: int, rel_h: float, col: Color, 
 		for i in blur:
 			img.fill_rect(Rect2i(cx - bw / 2 - 2 - i, top - i, bw + 4 + i * 2, hh + i),
 					Color(col.r, col.g, col.b, 0.18))
+
+func _arm() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_armed = true

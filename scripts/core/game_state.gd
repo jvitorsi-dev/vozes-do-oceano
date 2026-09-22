@@ -44,6 +44,7 @@ var power_total: float = 12.0  # kW disponíveis na estação
 var power_demand: float = 12.0
 
 # ---------------------------------------------------------------- relógio da estação
+var mouse_sens_pref: float = 0.0026  # preferência do jogador (rad por pixel de tela)
 var clock_minutes: int = 131    # 02:11 no relógio interno
 var elapsed_real: float = 0.0
 
@@ -228,6 +229,7 @@ func to_dict() -> Dictionary:
 		"anomalies": anomalies, "entries": entries_unlocked, "journal": journal,
 		"chapter": chapter, "trust": trust, "resonance": resonance,
 		"o2": o2, "battery": battery, "power": power_total, "clock": clock_minutes,
+		"mouse_sens": mouse_sens_pref,
 		"objective": objective_text, "elapsed": elapsed_real,
 	}
 
@@ -248,8 +250,15 @@ func from_dict(d: Dictionary) -> void:
 	battery = float(d.get("battery", 0.86))
 	power_total = float(d.get("power", 12.0))
 	clock_minutes = int(d.get("clock", 131))
+	mouse_sens_pref = clampf(float(d.get("mouse_sens", 0.0026)), 0.0004, 0.01)
 	objective_text = String(d.get("objective", ""))
 	elapsed_real = float(d.get("elapsed", 0.0))
+
+
+## Preferência de sensibilidade do mouse (persistida junto do save).
+func set_mouse_sens(v: float) -> void:
+	mouse_sens_pref = clampf(v, 0.0004, 0.01)
+	_save_dirty = true
 
 
 func save_game() -> void:

@@ -1,5 +1,8 @@
 class_name PauseMenu
 extends Control
+
+## evita que o mesmo [E]/[ESC] que abre o painel o feche no mesmo quadro
+var _armed := false
 ## Menu de pausa + diário de bordo. É aqui que o jogador relê o que
 ## descobriu — e percebe que alguns registros não estão mais iguais.
 
@@ -67,6 +70,7 @@ func _ready() -> void:
 	root.add_child(UIStyle.divider())
 	root.add_child(UIStyle.make_label("[ESC] continuar a exploração    •    [TAB] diário", 12, UIStyle.TEXT_DIM))
 	_set_tab(_tab)
+	_arm()
 
 
 func _set_tab(i: int) -> void:
@@ -90,11 +94,11 @@ func _build_system() -> void:
 
 	var p: Player = _player()
 	grid.add_child(UIStyle.make_label("Sensibilidade do mouse", 14, UIStyle.TEXT))
-	_slider_sens = _slider(0.0004, 0.006, p.mouse_sens if p != null else 0.0021)
+	_slider_sens = _slider(0.0008, 0.0060, p.mouse_sens if p != null else 0.0026)
 	_slider_sens.value_changed.connect(func(x: float) -> void:
 		if _player() != null:
-			_player().mouse_sens = x)
-	grid.add_child(_slider_sens)
+			_player().mouse_sens = x
+		GameState.set_mouse_sens(x))
 
 	grid.add_child(UIStyle.make_label("Campo de visão", 14, UIStyle.TEXT))
 	_slider_fov = _slider(60.0, 100.0, p.fov if p != null else 78.0)
@@ -238,3 +242,8 @@ func _player() -> Player:
 		if n is Player:
 			return n
 	return null
+
+func _arm() -> void:
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_armed = true
