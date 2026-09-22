@@ -61,6 +61,9 @@ func _ready() -> void:
 
 	# luz de emergência em toda a estação até a energia voltar
 	UI.reset_for_new_run()
+	if OS.has_feature("web"):
+		# navegador: a captura do cursor costuma ser bloqueada — ensina o arrasto
+		UI.hint_mouse(true)
 	if GameState.has("energia_ok"):
 		LampGrid.power_on()
 	else:
