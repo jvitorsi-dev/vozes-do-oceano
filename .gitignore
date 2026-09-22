@@ -1,0 +1,7 @@
+# artefatos de build e caches (ficam fora do repositório)
+.godot/
+dist/
+entrega/
+preview/
+*.zip
+*.tmp
