@@ -47,9 +47,13 @@ Quando um painel está aberto, o mouse é liberado automaticamente.
 **Terminais de emergência** (hangar, depósito, cabines e o reprodutor de fitas) funcionam
 antes de a energia voltar: é por eles que você começa a entender a estação.
 
-**Mouse**: se o cursor parar de girar a câmera (acontece quando outra janela rouba o
-foco do jogo — alt-tab, aviso do sistema), clique uma vez dentro da janela: o jogo
-prende o cursor de volta. A sensibilidade fica em **ESC → SISTEMA → Sensibilidade do
+**Mouse** — três formas de olhar, na ordem em que você deve tentar:
+1. Normal: ao começar a expedição o cursor fica preso ao jogo.
+2. Se ele escapar (alt-tab, aviso do sistema, janela sem foco): clique uma vez dentro
+   da janela, ou aperte **F1**.
+3. Se o sistema **negar** a captura (navegador, tela cheia bloqueada, alguns Linux/macOS):
+   **segure o botão esquerdo e arraste** para olhar. O rodapé avisa quando é esse o caso.
+**F3** abre o diagnóstico do mouse (modo do cursor, janela, escala, sensibilidade). A sensibilidade fica em **ESC → SISTEMA → Sensibilidade do
 mouse** e é guardada junto do progresso.
 
 **Monta-cargas**: no corredor existe um painel "Chamar monta-carga" que traz a plataforma

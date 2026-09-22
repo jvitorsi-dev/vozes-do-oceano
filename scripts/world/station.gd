@@ -167,7 +167,7 @@ static func _build_deck1(root: Node3D) -> void:
 	# ---- DEPÓSITO / OFICINA (oeste)
 	_mk(root, "Deposito", -40.0, -10.0, -18.0, 10.0, D1, 3.4, {
 		"name": "Deposito",
-		"wall": Mats.get_mat("wall_dark"),
+		"wall": Mats.get_mat("wall_rust"),
 		"skip_walls": ["e"],
 		"pipes": true,
 		"lamps": _lamp_row(false, -8.0, 8.0, -30.0, 3, true),
@@ -193,7 +193,8 @@ static func _build_deck1(root: Node3D) -> void:
 	# ---- CABINES (leste)
 	_mk(root, "Cabines", 18.0, -12.0, 38.0, 12.0, D1, 3.4, {
 		"name": "Cabines",
-		"wall": Mats.get_mat("wall"),
+		"wall": Mats.get_mat("wall_blue"),
+		"floor": Mats.get_mat("floor_plate"),
 		"skip_walls": ["w"],
 		"lamps": _lamp_row(false, -10.0, 10.0, 28.0, 3, true),
 	}, "cabines", "CABINES DA TRIPULAÇÃO")
@@ -217,7 +218,7 @@ static func _build_deck1(root: Node3D) -> void:
 	# ---- REFEITÓRIO (sul) com a janela sul
 	_mk(root, "Refeitorio", -12.0, 18.0, 12.0, 40.0, D1, 4.2, {
 		"name": "Refeitorio",
-		"wall": Mats.get_mat("wall"),
+		"wall": Mats.get_mat("tile_wall"),
 		"skip_walls": ["n"],
 		"windows": [{"side": "s", "at": 0.0, "w": 15.0, "h": 3.1, "base": 0.7, "type": "big"}],
 		"lamps": _lamp_row(true, -10.0, 10.0, 30.0, 3, true),
@@ -323,6 +324,7 @@ static func _build_deck2(root: Node3D) -> void:
 	_mk(root, "Laboratorios", -14.0, -38.0, 14.0, -18.0, D2, 3.6, {
 		"name": "Laboratorios",
 		"wall": Mats.get_mat("wall"),
+		"floor": Mats.get_mat("floor_plate"),
 		"skip_walls": ["s"],
 		"lamps": _lamp_row(true, -12.0, 12.0, -28.0, 3, false, 0.25),
 	}, "lab", "LABORATÓRIOS DE XENOBIOLOGIA")
@@ -340,6 +342,7 @@ static func _build_deck2(root: Node3D) -> void:
 	_mk(root, "Engenharia", 18.0, -12.0, 38.0, 12.0, D2, 4.0, {
 		"name": "Engenharia",
 		"wall": Mats.get_mat("wall_dark"),
+		"floor": Mats.get_mat("floor_plate"),
 		"skip_walls": ["w"],
 		"pipes": true,
 		"lamps": _lamp_row(false, -10.0, 10.0, 30.0, 3, false, 0.3),
@@ -366,7 +369,7 @@ static func _build_deck2(root: Node3D) -> void:
 	# ---- ENFERMARIA
 	_mk(root, "Enfermaria", -12.0, 18.0, 12.0, 36.0, D2, 3.4, {
 		"name": "Enfermaria",
-		"wall": Mats.get_mat("wall"),
+		"wall": Mats.get_mat("tile_wall"),
 		"skip_walls": ["n"],
 		"lamps": _lamp_row(true, -10.0, 10.0, 27.0, 3, false, 0.25),
 	}, "enfermaria", "ENFERMARIA")

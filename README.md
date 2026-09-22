@@ -17,6 +17,8 @@ Este é um jogo de **exploração, investigação e atmosfera**. Não há combat
 | Duração | ~45–70 minutos por partida |
 | Conteúdo próprio | 5 finais (4 finais + variações guiadas pelas decisões), 17 tipos de anomalia, 4 conveses, 11 setores |
 | Playtest | jogado do início ao fim por um jogador-robô de QA, **no build exportado**: **69 verificações OK, 0 falhas** (inclui mouse e áudio) — ver `docs/RELATORIO-PLAYTEST.md` |
+| Visual | texturas procedurais com **albedo + normal + ORM** e mapeamento triplanar; Forward+ com **SSAO, SSIL, SSR e neblina volumétrica** |
+| Teste rápido | build **web** em `preview/` (`python3 preview/servidor.py` → `http://localhost:8080`) |
 
 ---
 

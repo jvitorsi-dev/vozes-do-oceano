@@ -477,6 +477,52 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 				"stain": Color(0.45, 0.42, 0.36),
 			}
 			_apply(m, cfg13, 1.0, false)
+		"wall_blue":
+			# cabines da tripulação: pintura azul institucional, gasta nos cantos
+			var cb := {
+				"pattern": "panel", "size": SIZE, "step": 112, "thick": 4, "rivets": false,
+				"base": Color(0.205, 0.250, 0.330), "seed": 83, "rough": 0.74, "metal": 0.12,
+				"grime": 0.30, "wear": 0.14, "bump": 1.4,
+				"stain": Color(0.09, 0.11, 0.15),
+			}
+			_apply(m, cb, 2.2, true)
+		"wall_rust":
+			# depósito: chapa muito castigada, ferrugem velha escorrida
+			var cr := {
+				"pattern": "rust", "rust_amount": 0.62, "size": SIZE,
+				"base": Color(0.275, 0.250, 0.215), "seed": 89, "rough": 0.88, "metal": 0.35,
+				"grime": 0.34, "wear": 0.10, "bump": 1.7,
+				"rust_color": Color(0.32, 0.155, 0.065),
+				"stain": Color(0.10, 0.085, 0.065),
+			}
+			_apply(m, cr, 1.8, true)
+		"tile_wall":
+			# refeitório / enfermaria: azulejo esmaltado, encardido nas juntas
+			var ct := {
+				"pattern": "tile", "size": SIZE, "step": 64,
+				"base": Color(0.720, 0.740, 0.715), "seed": 97, "rough": 0.30, "metal": 0.02,
+				"grime": 0.34, "wear": 0.08, "bump": 1.5,
+				"stain": Color(0.40, 0.40, 0.36),
+			}
+			_apply(m, ct, 1.6, true)
+		"floor_plate":
+			# piso de chapa estampada do hangar e da engenharia
+			var cp := {
+				"pattern": "panel", "size": SIZE, "step": 40, "thick": 5, "rivets": true,
+				"base": Color(0.205, 0.215, 0.225), "seed": 101, "rough": 0.46, "metal": 0.62,
+				"grime": 0.30, "wear": 0.16, "bump": 2.0,
+				"stain": Color(0.075, 0.08, 0.085),
+			}
+			_apply(m, cp, 1.4, true)
+		"panel_green":
+			# armários e consoles: verde-oliva militar
+			var cg := {
+				"pattern": "panel", "size": SIZE, "step": 96, "thick": 3, "rivets": true,
+				"base": Color(0.225, 0.255, 0.205), "seed": 103, "rough": 0.70, "metal": 0.18,
+				"grime": 0.28, "wear": 0.14, "bump": 1.5,
+				"stain": Color(0.10, 0.12, 0.09),
+			}
+			_apply(m, cg, 1.6, true)
 		"paint_red":
 			_flat_painted(m, Color(0.42, 0.10, 0.08), 77)
 		"paint_blue":

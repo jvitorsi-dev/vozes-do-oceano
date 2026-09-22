@@ -20,6 +20,37 @@ rádio, abriu o cofre, ouviu a fita do sino, viu a porta selada se abrir sozinha
 subiu no módulo de observação, olhou a janela para o oceano e respondeu ao ECHO
 — chegando ao desfecho com a tela de final e os barramentos de áudio íntegros.
 
+## Rodada 3 — o retorno do jogador: mouse, texturas e preview no navegador
+
+O jogador reportou três coisas: "o mouse continua não funcionando", "algumas texturas
+estão estranhas ou simples demais" e pediu para testar direto no navegador.
+
+### O que foi descoberto (e é importante)
+
+1. **As builds que o jogador baixou eram de código ANTIGO.** Os arquivos grandes do
+   motor (1,2 GB de templates + 180 MB de ferramentas) ficavam dentro do workspace e
+   estouravam o limite de snapshot: a cada rodada o projeto voltava para uma versão
+   anterior, e a exportação saía daquele código. Isso explica o mouse "não funcionar"
+   mesmo depois das correções. **Agora o toolchain vive fora do workspace** (`/opt/godot`)
+   e as builds saem em `dist/` — o projeto não pode mais ser revertido por tamanho.
+2. **O jogo é Forward+ (Vulkan), mas todas as capturas de conferência usavam o
+   renderizador de compatibilidade (OpenGL)** — que ignora oclusão de ambiente,
+   reflexos e neblina volumétrica. Ou seja: eu estava avaliando um jogo diferente do
+   que o jogador vê. As capturas passaram a usar Vulkan.
+3. **No navegador a captura do cursor é bloqueada** dentro de iframe de preview. Sem
+   uma alternativa, o mouse parece "não funcionar" ali de verdade.
+
+### Correções desta rodada
+
+| # | Item | O que mudou |
+|---|---|---|
+| 14 | Olhar com o mouse | Além da captura + auto-recaptura + F1, agora existe **arrasto com o botão esquerdo**: segure e arraste para olhar. Funciona SEMPRE — navegador, iframe, Wayland, macOS sem permissão, janela sem foco. O aviso no rodapé aparece quando o sistema nega a captura |
+| 15 | Diagnóstico | **F3** mostra na tela: modo do cursor, se está capturado, tamanho da janela, resolução interna, escala e sensibilidade. É a informação que faltava para diagnosticar remotamente |
+| 16 | Texturas | Reescritas do zero: **albedo + normal + rugosidade/metalicidade (ORM)** gerados de um campo de altura. Padrões: painéis rebitados, grade de piso, azulejo, teto perfurado, metal escovado, ferrugem com escorrimento, trama de tecido, listras de perigo. **Mapeamento triplanar em coordenadas de mundo** (fim do esticamento) |
+| 17 | Materiais novos | `wall_blue` (cabines), `wall_rust` (depósito), `tile_wall` (refeitório e enfermaria), `floor_plate` (hangar, engenharia, labs), `pipe` (tubulações). Cada setor tem paleta própria — antes tudo era o mesmo cinza |
+| 18 | Iluminação | **SSAO** (encaixa móveis no espaço), **SSIL**, **SSR** (piso e vidro refletem), **neblina volumétrica** (ar com corpo e feixes de luz), glow mais fotográfico. Lâmpadas: alcance 9 → 14 m, energia maior, ambiente de emergência mais legível |
+| 19 | Teste no navegador | **Build web (WebGL2) servida em `http://localhost:8080`** para o jogador testar sem baixar nada — com o arrasto funcionando no lugar da captura bloqueada |
+
 ## Rodada 2 — o mouse e o áudio do build
 
 Depois do relato de "o mouse não está funcionando no jogo", a rodada 2 passou a

@@ -173,9 +173,9 @@ func _build_environment() -> void:
 	e.volumetric_fog_length = 64.0
 	e.volumetric_fog_ambient_inject = 0.4
 	# brilho mais fotográfico
-	e.glow_levels_1 = 0.4
-	e.glow_levels_3 = 0.6
-	e.glow_levels_5 = 0.7
+	e.set_glow_level(1, 0.4)
+	e.set_glow_level(3, 0.6)
+	e.set_glow_level(5, 0.7)
 	e.glow_map_strength = 0.45
 	we.environment = e
 	add_child(we)
