@@ -5,3 +5,5 @@ entrega/
 preview/
 *.zip
 *.tmp
+
+dist
