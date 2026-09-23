@@ -47,6 +47,17 @@ static func build(root: Node3D) -> void:
 	_build_deck2(root)
 	_build_deck3(root)
 	_build_deck4(root)
+	# por último: vestir a estação com tubulação, cabos, sujeira, vapor e poeira
+	Dressing.vestir(root)
+	# ...e aglutinar toda essa tralha estática em MultiMesh: mesma cara,
+	# uma fração das chamadas de desenho (isto é decoração pura, nada aqui
+	# tem script, colisor ou mudança de estado durante o jogo)
+	var vest := root.get_node_or_null("Vestimenta")
+	if vest != null:
+		for g in vest.get_children():
+			if g is Node3D:
+				Batcher.aglutinar(g as Node3D, 4)
+		Batcher.aglutinar(vest as Node3D, 6)
 
 
 # ================================================================ UTILIDADES

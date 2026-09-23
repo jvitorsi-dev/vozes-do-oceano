@@ -20,6 +20,80 @@ rádio, abriu o cofre, ouviu a fita do sino, viu a porta selada se abrir sozinha
 subiu no módulo de observação, olhou a janela para o oceano e respondeu ao ECHO
 — chegando ao desfecho com a tela de final e os barramentos de áudio íntegros.
 
+## Rodada 4 — o pedido: "um cenário meio Dead Space, só que mais soviético/enferrujado"
+
+O jogador pediu explicitamente mais peso no cenário: densidade industrial (Dead Space)
+com acabamento soviético-utilitário — cano, cabo, ferrugem, sujeira, vapor, remendo.
+A estação era limpa demais: paredes lisas, móveis soltos, nenhuma manutenção visível.
+
+**1. Kit de detalhamento** (`scripts/lib/detail.gd`): tubulação com flanges, isolamento
+e volante de válvula; bandeja de cabos com fios caídos; conduíte com caixas de passagem;
+caixa de junção; painel de manômetros; quadro de disjuntores; grade de ventilação;
+banco de monitores; bancada; armários; escada de gato; viga em I; vapor; poça de óleo;
+poeira em suspensão; lanterna de trabalho pendurada (com uma piscando).
+
+**2. Decalques** (`scripts/lib/decals.gd`): óleo, água, resíduo, escorrido, arranhão,
+desgaste, e estênceis (seta, triângulo, faixas, moldura) no piso e nas paredes.
+*(No navegador os decalques não existem: o renderizador de compatibilidade não
+desenha `Decal`, então eles são pulados lá — sem custo, sem erro.)*
+
+**3. Vestimenta por setor** (`scripts/world/dressing.gd`): cada ambiente ganhou a sua
+camada de manutenção. Engenharia recebeu massa central de maquinário — dois blocos de
+motor com aletas e volante, três bombas verticais, coletor de tubos com manômetros,
+tanques de ar com faixa de perigo e um passadiço com guarda-corpo atravessando a sala.
+Hangar ganhou vigas mestras, pórtico rolante com gancho, tubulação dupla, armários e
+bancada. Depósito: estantes, caixotes empilhados e tambores. Corredores do anel:
+tubulação o anel inteiro, bandeja de cabos, vigas em I, caixas de junção alternadas,
+grades e luminárias de trabalho.
+
+**O custo, e como ele foi contido.** A primeira versão da vestimenta criou 13.016
+malhas soltas: **39.416 chamadas de desenho por quadro** — inviável num PC modesto e
+pior ainda no navegador. Duas medidas resolveram:
+
+* `scripts/lib/batcher.gd` — aglutinador de geometria estática. Varre os galhos
+  decorativos e funde as peças idênticas (mesma primitiva, mesmo material) em
+  `MultiMeshInstance3D`. É decoração pura: nada com script, colisor ou troca de estado
+  durante o jogo é tocado. Resultado: 39.416 → 8.324 chamadas.
+* Peças finas com 8 lados em vez de 12, flanges e anéis de isolamento mais espaçados,
+  menos fios por bandeja, poeira limitada a 45 partículas. Resultado: 2.418.782 →
+  1.181.386 primitivas por quadro.
+
+Medição (`--peso`, novo modo de diagnóstico no `main.gd`, 1280×720):
+
+| | malhas | chamadas | primitivas | memória |
+|---|---|---|---|---|
+| antes da rodada 4 | 1.554 | 4.549 | 206.136 | 67,9 MB |
+| vestimenta crua | 13.016 | 39.416 | 2.418.782 | 264,3 MB |
+| vestimenta + aglutinação + peças baratas | **2.275** | **8.005** | **1.181.386** | 159,5 MB |
+
+**4. Dois defeitos achados na conferência visual (e corrigidos):**
+
+* Poeira e vapor apareciam como **quadrados opacos** flutuando no ar. A causa: o
+  material das partículas era um quadrado liso sem gradiente. Ganharam uma máscara
+  radial gerada em código (`_tex_halo()`), com queda ao cubo na borda — a partícula
+  virou halo suave. Antes/depois está em `docs/capturas/r4/`.
+* O build do navegador não desenha `Decal` (limitação do renderizador de
+  compatibilidade) e as partículas custam caro lá: em `web`, os decalques são pulados
+  e a poeira não é criada. O desktop continua com tudo.
+
+**5. Iluminação de inspeção** (`--shot`): o jogo é escuro por decisão de projeto, e foto
+de sala escura vira mancha preta. O modo de captura agora acende um refletor sobre a
+câmera e reforça as luzes da cena — só nas capturas, nada muda na partida do jogador.
+
+**6. Novas câmeras de captura**: engenharia, depósito, cabines, corredor de observação,
+enfermaria, eclusa, rádio e antessala, além das antigas reposicionadas mais perto das
+peças. As imagens da rodada 4 estão em `docs/capturas/r4/` (12 tomadas).
+
+Observação honesta sobre as imagens: elas foram feitas com o renderizador de
+compatibilidade (OpenGL3), o mesmo do navegador, porque a máquina de build ficou sem
+Vulkan utilizável nesta rodada (um quadro levava minutos). Ele não tem oclusão de
+ambiente nem brilho HDR — **no desktop, em Vulkan, o cenário aparece mais cheio e mais
+contrastado do que nas fotos.**
+
+**7. Verificação:** o jogador-robô refez o percurso completo com o cenário vestido:
+**63 verificações ok, 0 falhas, 0 erros de script**. O binário Linux exportado também
+roda o auto-teste sem erro.
+
 ## Rodada 3 — o retorno do jogador: mouse, texturas e preview no navegador
 
 O jogador reportou três coisas: "o mouse continua não funcionando", "algumas texturas

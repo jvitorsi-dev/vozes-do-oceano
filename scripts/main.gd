@@ -24,12 +24,18 @@ var _shot_only := ""
 var _selftest := false
 var _probe_mode := false
 var _matsheet := false
+var _peso := false
 var _play_menu := false
 var _play := false
 var _shot_frames := 0
+var _inspecao_feita := false
+## Quadros de acomodação antes de gravar cada tomada. Era 45, o que tornava
+## cada captura Vulkan muito longa na máquina de build; 12 já estabiliza
+## iluminação, névoa e TAA.
+const SHOT_SETTLE := 12
 const SHOTS := [
-	{"pos": Vector3(0, 42.6, -28.0), "look": Vector3(2, 41.6, -40.0), "nome": "hangar"},
-	{"pos": Vector3(0, 42.0, -16.0), "look": Vector3(17, 41.6, -10.0), "nome": "anel"},
+	{"pos": Vector3(-6.0, 42.4, -24.0), "look": Vector3(4.0, 42.0, -40.0), "nome": "hangar"},
+	{"pos": Vector3(-10.0, 42.0, -15.5), "look": Vector3(14.0, 41.6, -12.0), "nome": "anel"},
 	{"pos": Vector3(-3, 42.6, 24.0), "look": Vector3(0, 42.2, 39.5), "nome": "refeitorio"},
 	{"pos": Vector3(0, 78.0, 0.0), "look": Vector3(0, 76.6, 19.5), "nome": "observatorio"},
 	{"pos": Vector3(46, 78.0, 46.0), "look": Vector3(0, 62.0, 0.0), "nome": "exterior"},
@@ -39,6 +45,14 @@ const SHOTS := [
 	{"pos": Vector3(14, 40.8, -6.0), "look": Vector3(-2, 41.4, -14.0), "nome": "manifesto", "res": 4, "fig": Vector3(2, 40.0, -12.0)},
 	{"pos": Vector3(0, 64.4, 21.0), "look": Vector3(0, 64.6, 25.0), "nome": "sino", "res": 3},
 	{"pos": Vector3(-4, 42.4, 22.0), "look": Vector3(0, 42.0, 39.4), "nome": "refeitorio_luz", "res": 2},
+	{"pos": Vector3(24.5, 53.0, 9.6), "look": Vector3(28.6, 53.6, 1.0), "nome": "engenharia"},
+	{"pos": Vector3(-27.0, 42.4, 4.0), "look": Vector3(-37.0, 41.8, -6.0), "nome": "deposito"},
+	{"pos": Vector3(21.5, 42.4, 4.0), "look": Vector3(34.0, 41.9, -9.0), "nome": "cabines"},
+	{"pos": Vector3(21.0, 65.8, -0.6), "look": Vector3(34.0, 65.2, 1.4), "nome": "corredorobs"},
+	{"pos": Vector3(-8.0, 54.4, 22.0), "look": Vector3(9.0, 53.8, 33.0), "nome": "enfermaria"},
+	{"pos": Vector3(-28.0, 66.4, 5.0), "look": Vector3(-38.0, 65.8, -3.0), "nome": "eclusa"},
+	{"pos": Vector3(-27.0, 54.4, 5.0), "look": Vector3(-36.5, 53.9, -5.0), "nome": "radio"},
+	{"pos": Vector3(24.0, 78.4, 3.0), "look": Vector3(34.0, 77.9, -5.0), "nome": "antessala"},
 ]
 
 
@@ -95,10 +109,16 @@ func _ready() -> void:
 		elif a == "--selftest":
 			_selftest = true
 			_autostart = true
+		elif a == "--peso":
+			_peso = true
+			_autostart = true
 		elif a.begins_with("--only="):
 			_shot_only = a.substr(7)
 			_shot = true
 			_autostart = true
+	if _peso:
+		_medir_peso()
+		return
 	if _matsheet:
 		_dump_mats()
 		get_tree().quit()
@@ -440,7 +460,7 @@ func _shot_tick() -> void:
 		get_tree().quit()
 		return
 	_shot_frames += 1
-	if _shot_i < 0 or _shot_frames > 45:
+	if _shot_i < 0 or _shot_frames > SHOT_SETTLE:
 		_shot_i += 1
 		if _shot_i <= 0:
 			LampGrid.power_on()
@@ -450,7 +470,7 @@ func _shot_tick() -> void:
 			return
 		var s: Dictionary = SHOTS[_shot_i]
 		if _shot_only != "" and String(s["nome"]) != _shot_only:
-			_shot_frames = 46
+			_shot_frames = SHOT_SETTLE + 1
 			return
 		if s.has("res"):
 			GameState.add_resonance(int(s["res"]))
@@ -467,8 +487,43 @@ func _shot_tick() -> void:
 		menu_cam.look_at(s["look"], Vector3.UP)
 		menu_cam.make_current()
 		print("[SHOT %d] %s  frame=%d" % [_shot_i, String(s["nome"]), Engine.get_process_frames()])
-	# iluminação de inspeção: acende tudo para avaliar a geometria
-	pass
+	_luz_de_inspecao()
+
+
+## Iluminação de inspeção — só nas capturas (--shot). O jogo é escuro de
+## propósito; para fotografar e conferir geometria, material e sujeira é
+## preciso levantar o ambiente. Não afeta a partida do jogador.
+func _luz_de_inspecao() -> void:
+	if _inspecao_feita:
+		return
+	_inspecao_feita = true
+	LampGrid.power_on()
+	var e := get_viewport().world_3d.environment
+	if e != null:
+		e.ambient_light_energy = 2.2
+		e.ambient_light_color = Color(0.42, 0.50, 0.66)
+	# uma luz de mão, como se o fotógrafo levasse um refletor: sem ela, sala
+	# escura fotografada de longe vira mancha preta
+	var refletor := OmniLight3D.new()
+	refletor.name = "LuzInspecao"
+	refletor.light_color = Color(0.86, 0.90, 1.0)
+	refletor.light_energy = 17.0
+	refletor.omni_range = 30.0
+	refletor.shadow_enabled = false
+	menu_cam.add_child(refletor)
+	refletor.position = Vector3(0, 0.6, 0.4)
+	var conta := 0
+	for n in get_tree().root.find_children("*", "Light3D", true, false):
+		var lz := n as Light3D
+		if lz is OmniLight3D:
+			var ol := lz as OmniLight3D
+			if ol.name != "LuzInspecao":
+				ol.light_energy = maxf(ol.light_energy, 0.95)
+				conta += 1
+		elif lz is SpotLight3D:
+			lz.light_energy = maxf(lz.light_energy, 1.25)
+			conta += 1
+	print("[SHOT] luz de inspecao: %d luzes reforcadas" % conta)
 
 
 func _on_menu_start() -> void:
@@ -485,3 +540,47 @@ func _on_menu_start() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("pause") and not started:
 		return
+
+
+## Mede o custo do cenário vestido (nós, malhas, luzes, draw calls, FPS).
+## Existe para comparar versões depois de mudanças grandes de arte.
+func _medir_peso() -> void:
+	var contagem := {"nos": 0, "malhas": 0, "luzes": 0, "colisores": 0}
+	var pilha: Array[Node] = [get_tree().root]
+	while not pilha.is_empty():
+		var n: Node = pilha.pop_back()
+		contagem["nos"] += 1
+		if n is MeshInstance3D:
+			contagem["malhas"] += 1
+		elif n is Light3D:
+			contagem["luzes"] += 1
+		elif n is CollisionShape3D:
+			contagem["colisores"] += 1
+		for c in n.get_children():
+			pilha.append(c)
+	await get_tree().create_timer(6.0).timeout
+	var fps := Performance.get_monitor(Performance.TIME_FPS)
+	var draws := Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)
+	var prim := Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME)
+	var mem := Performance.get_monitor(Performance.MEMORY_STATIC)
+	print("=== PESO DO CENARIO ===")
+	var por_dono := {}
+	for n2 in get_tree().root.find_children("*", "MeshInstance3D", true, false):
+		var raiz := n2
+		for _i in 4:
+			if raiz.get_parent() == null or raiz.get_parent() == world_root:
+				break
+			raiz = raiz.get_parent()
+		var k := raiz.name
+		por_dono[k] = int(por_dono.get(k, 0)) + 1
+	var lista := por_dono.keys()
+	lista.sort_custom(func(a, b): return int(por_dono[a]) > int(por_dono[b]))
+	var txt := ""
+	for k in lista.slice(0, 14):
+		txt += "%s=%d  " % [k, por_dono[k]]
+	print("malhas por grupo: " + txt)
+	print("nos=%d malhas=%d luzes=%d colisores=%d" % [contagem["nos"], contagem["malhas"],
+			contagem["luzes"], contagem["colisores"]])
+	print("fps=%.1f draw_calls=%.0f primitivas=%.0f memoria=%.1f MB" % [fps, draws, prim,
+			mem / 1048576.0])
+	get_tree().quit()
