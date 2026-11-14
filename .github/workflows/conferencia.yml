@@ -1,0 +1,140 @@
+# Conferência automática: roda o jogo num servidor do GitHub (sem placa de vídeo,
+# renderização por software), grava capturas de todos os setores, mede o peso do
+# cenário, roda o playtest automatizado e exporta a versão web.
+name: Conferencia visual
+
+on:
+  push:
+    branches: ["arena/**"]
+    paths-ignore: ["docs/ci/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: conferencia-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_URL: https://github.com/godotengine/godot/releases/download/4.4-stable
+  GODOT_BIN: Godot_v4.4-stable_linux.x86_64
+
+jobs:
+  capturas:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependencias (X virtual + OpenGL por software)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libgl1 libglx-mesa0 libgl1-mesa-dri libegl1 \
+            libxcursor1 libxinerama1 libxrandr2 libxi6 libxkbcommon0 libfontconfig1
+          pip install --quiet pillow
+
+      - name: Godot 4.4
+        run: |
+          curl -sSL -o godot.zip "$GODOT_URL/$GODOT_BIN.zip"
+          unzip -q godot.zip -d "$RUNNER_TEMP"
+          echo "GODOT=$RUNNER_TEMP/$GODOT_BIN" >> "$GITHUB_ENV"
+
+      - name: Importar o projeto
+        run: timeout 300 "$GODOT" --headless --path . --import || true
+
+      - name: Peso do cenario (--peso)
+        run: |
+          mkdir -p docs/ci
+          timeout 600 xvfb-run -a -s "-screen 0 1280x720x24" "$GODOT" --path . \
+            --rendering-driver opengl3 --resolution 1280x720 -- --peso 2>&1 | tee "$RUNNER_TEMP/peso.log" || true
+          grep -E "PESO|malhas|nos=|fps=|SCRIPT ERROR|Parse Error" "$RUNNER_TEMP/peso.log" > docs/ci/peso.txt || true
+          cat docs/ci/peso.txt
+
+      - name: Capturas de todos os setores (--shot)
+        run: |
+          mkdir -p "$RUNNER_TEMP/quadros"
+          timeout 1500 xvfb-run -a -s "-screen 0 1280x720x24" "$GODOT" --path . \
+            --rendering-driver opengl3 --resolution 1280x720 \
+            --write-movie "$RUNNER_TEMP/quadros/q.png" --fixed-fps 10 -- --shot 2>&1 | tee "$RUNNER_TEMP/shot.log" || true
+          python3 tools/ci/escolher_quadros.py "$RUNNER_TEMP/shot.log" "$RUNNER_TEMP/quadros" docs/ci/capturas
+          grep -E "SCRIPT ERROR|Parse Error|ERROR:" "$RUNNER_TEMP/shot.log" | sort | uniq -c | head -60 > docs/ci/erros.txt || true
+
+      - name: Playtest automatizado (--play)
+        continue-on-error: true
+        run: |
+          sudo mkdir -p /home/user/bot_shots && sudo chmod 777 /home/user /home/user/bot_shots
+          timeout 2400 xvfb-run -a -s "-screen 0 640x360x24" "$GODOT" --path . \
+            --rendering-driver opengl3 --resolution 640x360 --quit-after 60000 -- --play 2>&1 | tee "$RUNNER_TEMP/play.log" || true
+          grep -a "\[BOT\]" "$RUNNER_TEMP/play.log" > docs/ci/playtest.txt || true
+          tail -8 docs/ci/playtest.txt
+
+      - name: Artefatos (capturas em PNG e logs completos)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conferencia
+          path: |
+            ${{ runner.temp }}/*.log
+            docs/ci
+            /home/user/bot_shots
+
+      - name: Gravar resultados no branch
+        if: always()
+        run: |
+          git config user.name "conferencia-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add -A docs/ci
+          git diff --cached --quiet && exit 0
+          git commit -q -m "CI: capturas e medicoes de ${GITHUB_SHA::7} [skip ci]"
+          git pull -q --rebase origin "${GITHUB_REF_NAME}" || true
+          git push -q origin "HEAD:${GITHUB_REF_NAME}"
+
+  web:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Godot 4.4 + modelo de exportacao web
+        run: |
+          curl -sSL -o godot.zip "$GODOT_URL/$GODOT_BIN.zip"
+          unzip -q godot.zip -d "$RUNNER_TEMP"
+          echo "GODOT=$RUNNER_TEMP/$GODOT_BIN" >> "$GITHUB_ENV"
+          curl -sSL -o tpl.tpz "$GODOT_URL/Godot_v4.4-stable_export_templates.tpz"
+          T="$HOME/.local/share/godot/export_templates/4.4.stable"
+          mkdir -p "$T"
+          unzip -q -j tpl.tpz "templates/web_nothreads_release.zip" "templates/web_nothreads_debug.zip" \
+            "templates/web_release.zip" "templates/web_debug.zip" "templates/version.txt" -d "$T"
+          rm tpl.tpz
+
+      - name: Exportar a versao web
+        run: |
+          timeout 300 "$GODOT" --headless --path . --import || true
+          mkdir -p "$RUNNER_TEMP/web"
+          "$GODOT" --headless --path . --export-release "Web" "$RUNNER_TEMP/web/index.html"
+          ls -la "$RUNNER_TEMP/web"
+          test -s "$RUNNER_TEMP/web/index.wasm"
+
+      - name: Artefato da versao web
+        uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: ${{ runner.temp }}/web
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/web
+
+  publicar:
+    needs: web
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
