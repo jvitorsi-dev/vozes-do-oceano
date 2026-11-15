@@ -62,6 +62,17 @@ jobs:
           python3 tools/ci/escolher_quadros.py "$RUNNER_TEMP/shot.log" "$RUNNER_TEMP/quadros" docs/ci/capturas
           grep -E "SCRIPT ERROR|Parse Error|ERROR:" "$RUNNER_TEMP/shot.log" | sort | uniq -c | head -60 > docs/ci/erros.txt || true
 
+      - name: Capturas com a luz real da partida (--real e --real-luz)
+        continue-on-error: true
+        run: |
+          for modo in real real-luz; do
+            mkdir -p "$RUNNER_TEMP/q_$modo"
+            timeout 900 xvfb-run -a -s "-screen 0 1280x720x24" "$GODOT" --path . \
+              --rendering-driver opengl3 --resolution 1280x720 \
+              --write-movie "$RUNNER_TEMP/q_$modo/q.png" --fixed-fps 10 -- --$modo 2>&1 | tee "$RUNNER_TEMP/$modo.log" || true
+            python3 tools/ci/escolher_quadros.py "$RUNNER_TEMP/$modo.log" "$RUNNER_TEMP/q_$modo" "docs/ci/capturas_$modo"
+          done
+
       - name: Playtest automatizado (--play)
         continue-on-error: true
         run: |

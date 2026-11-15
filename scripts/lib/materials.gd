@@ -771,7 +771,7 @@ static func _macro_tex() -> ImageTexture:
 			var e: float = risco.get_noise_2d(fx * 3.0, 0.0) * (1.0 - fx / per) \
 					+ risco.get_noise_2d((fx - per) * 3.0, 0.0) * (fx / per)
 			e = smoothstep(0.28, 0.6, e) * (0.5 + 0.5 * v)
-			var k := clampf(1.0 - v * 0.55 - m * 0.45 - e * 0.35, 0.08, 1.0)
+			var k := clampf(1.0 - v * 0.34 - m * 0.26 - e * 0.30, 0.25, 1.0)
 			# o escuro puxa para marrom-óleo, não para cinza
 			var c := Color(k, k * (0.94 + 0.06 * k), k * (0.86 + 0.14 * k), 0.5)
 			img.set_pixel(x, y, c)
