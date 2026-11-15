@@ -205,10 +205,10 @@ func _build_environment() -> void:
 	# mais luz que houvesse. Um céu neutro e fraco, usado SÓ como fonte de
 	# reflexo (o fundo continua preto), devolve o brilho frio do aço.
 	var ceu_mat := ProceduralSkyMaterial.new()
-	ceu_mat.sky_top_color = Color(0.20, 0.25, 0.31)
-	ceu_mat.sky_horizon_color = Color(0.24, 0.27, 0.30)
-	ceu_mat.ground_bottom_color = Color(0.10, 0.115, 0.13)
-	ceu_mat.ground_horizon_color = Color(0.22, 0.25, 0.28)
+	ceu_mat.sky_top_color = Color(0.30, 0.37, 0.46)
+	ceu_mat.sky_horizon_color = Color(0.34, 0.39, 0.44)
+	ceu_mat.ground_bottom_color = Color(0.15, 0.17, 0.19)
+	ceu_mat.ground_horizon_color = Color(0.30, 0.34, 0.38)
 	ceu_mat.sun_angle_max = 0.0
 	ceu_mat.sun_curve = 0.01
 	var ceu := Sky.new()

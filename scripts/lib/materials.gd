@@ -83,6 +83,13 @@ static func _noise(seed_v: int, freq: float, octaves: int = 4, gain := 0.5) -> F
 	return n
 
 
+## Quanto do "metálico" declarado vale de fato. Metal puro só reflete o que há
+## em volta — e dentro da estação em volta é escuro: piso de chapa, teto e
+## tubos sumiam em preto, com qualquer luz. Chapa velha, pintada e encardida
+## se comporta mais como superfície fosca com brilho; este ganho traz o
+## conjunto para esse meio-termo sem mexer material por material.
+const METAL_GANHO := 0.45
+
 ## Ruído ladrilhável: mistura quatro amostras deslocadas de um período, de modo
 ## que a borda direita continua na esquerda (e a de baixo na de cima). Sem isto
 ## cada repetição da textura mostrava um degrau de mancha na emenda.
@@ -389,7 +396,7 @@ static func _maps(cfg: Dictionary) -> Dictionary:
 	return {
 		"albedo": _albedo_img(h, size, base, seed_v, opts),
 		"normal": _normal_img(h, size, float(cfg.get("bump", 1.6))),
-		"orm": _orm_img(h, size, float(cfg.get("rough", 0.8)), float(cfg.get("metal", 0.0)), rust),
+		"orm": _orm_img(h, size, float(cfg.get("rough", 0.8)), float(cfg.get("metal", 0.0)) * METAL_GANHO, rust),
 	}
 
 
