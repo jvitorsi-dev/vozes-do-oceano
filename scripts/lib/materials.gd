@@ -89,6 +89,8 @@ static func _noise(seed_v: int, freq: float, octaves: int = 4, gain := 0.5) -> F
 ## se comporta mais como superfície fosca com brilho; este ganho traz o
 ## conjunto para esse meio-termo sem mexer material por material.
 const METAL_GANHO := 0.45
+## Expoente da curva que clareia os albedos gerados (ver _albedo_img).
+const CLAREAR := 0.62
 
 ## Ruído ladrilhável: mistura quatro amostras deslocadas de um período, de modo
 ## que a borda direita continua na esquerda (e a de baixo na de cima). Sem isto
@@ -349,6 +351,11 @@ static func _albedo_img(h: PackedFloat32Array, size: int, base: Color, seed_v: i
 				c = c.lerp(rust_col, clampf(rust[i] * 1.15, 0.0, 1.0))
 			if listras and fmod(float(x) + float(y), 64.0) >= 32.0:
 				c = c.lerp(Color(0.035, 0.035, 0.04), 0.90 - b * 0.25)
+			# As cores-base foram escolhidas "no olho" em sRGB e ficaram escuras
+			# demais: 0,20 em sRGB reflete 3% da luz — mais preto que carvão.
+			# Por isso nenhuma lâmpada clareava piso, teto ou parede escura.
+			# A curva traz tudo para a faixa de tinta/aço envelhecidos (10–25%).
+			c = Color(pow(c.r, CLAREAR), pow(c.g, CLAREAR), pow(c.b, CLAREAR))
 			img.set_pixel(x, y, c)
 	img.generate_mipmaps()
 	return ImageTexture.create_from_image(img)
