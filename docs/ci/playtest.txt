@@ -23,7 +23,7 @@
 [BOT] ✔ diário de Íris lido no mesmo terminal
 [BOT] screenshot: /home/user/bot_shots/01-02-briefing.png
 [BOT] ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 1)
-[BOT] ! preso perto de (-11.9, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT] ! preso perto de (-12.1, 40.0, -14.3), tentando desviar (tentativa 2)
 [BOT] ✔ usei bancada de manutenção — prompt: "Ler terminal"
 [BOT] ✔ usei bancada de manutenção (reabrindo) — prompt: "Ler terminal"
 [BOT] ✔ manual do reator lido
@@ -34,7 +34,7 @@
 [BOT] ✔ usei painel de chamada do monta-carga (convés 1) — prompt: "Chamar monta-carga"
 [BOT] ✔ chamada do monta-carga A: plataforma no nível 40
 [BOT] ✔ usei painel da plataforma (subindo) — prompt: "Operar monta-carga"
-[BOT] ✔ monta-carga A → convés 2 (jogador chegou em y=51.5)
+[BOT] ✔ monta-carga A → convés 2 (jogador chegou em y=51.6)
 [BOT] screenshot: /home/user/bot_shots/03-04-conves2.png
 [BOT] ✔ usei painel de energia — prompt: "Acionar painel de energia"
 [BOT] ✔ código do teclado confere com a pista (disjuntores do reator)
@@ -77,25 +77,66 @@
 [BOT] ✔ usei painel de chamada do monta-carga (observação) — prompt: "Chamar monta-carga"
 [BOT] ✔ chamada do monta-carga C: plataforma no nível 64
 [BOT] ✔ usei painel da plataforma (módulo) — prompt: "Operar monta-carga"
-[BOT] ✔ monta-carga C → módulo de observação (jogador chegou em y=75.5)
+[BOT] ! monta-carga C → módulo de observação: o monta-carga subiu sem o jogador — tentando embarcar de novo
+[BOT] ✖ monta-carga C → módulo de observação: o jogador não foi carregado pelo monta-carga (y=64.0, esperava 75.5)
+[BOT] ✖ rota inválida: alvo (31.5, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
 [BOT] screenshot: /home/user/bot_shots/11-12-antessala.png
+[BOT] ✖ rota inválida: alvo (24.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (16.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (8.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
 [BOT] screenshot: /home/user/bot_shots/12-13-modulo.png
-[BOT] ✔ usei console do Protocolo Espelho — prompt: "Ler terminal"
+[BOT] ✖ rota inválida: alvo (0.0, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (-9.5, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (-9.0, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (-10.0, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (-9.5, 76.0, 8.2) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (-9.5, 76.0, 7.2) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ nada no raio de interação em console do Protocolo Espelho ((-11.0, 76.0, 8.0)) — objeto: sim
+[BOT] ✖ rota inválida: alvo (0.0, 76.0, 15.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
 [BOT] screenshot: /home/user/bot_shots/13-14-janela-do-modulo.png
-[BOT] ✔ usei console ECHO — prompt: "Usar console ECHO — responder ao oceano"
-[BOT] ✔ a decisão final oferece 4 respostas
-[BOT] ✔ respondi ao oceano: FALAR (chamado)
-[BOT] ✔ final registrado (final_a)
-[BOT] ✔ a tela de desfecho apareceu
+[BOT] ✖ rota inválida: alvo (9.0, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (12.5, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (13.0, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (12.0, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (12.5, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (12.5, 76.0, 7.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ nada no raio de interação em console ECHO ((11.0, 76.0, 8.0)) — objeto: sim
+[BOT] ✖ o console ECHO não abriu o painel de decisão final (painel: <null>)
+[BOT] ✖ nenhum final foi registrado
+[BOT] ✖ a tela de desfecho NÃO apareceu
 [BOT] screenshot: /home/user/bot_shots/14-15-final.png
 [BOT] ✔ barramentos de áudio íntegros
 [BOT] ===== RELATÓRIO =====
-[BOT] verificações ok: 70
-[BOT] avisos: 4
+[BOT] verificações ok: 63
+[BOT] avisos: 5
 [BOT]   ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 1)
-[BOT]   ! preso perto de (-11.9, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT]   ! preso perto de (-12.1, 40.0, -14.3), tentando desviar (tentativa 2)
 [BOT]   ! preso perto de (0.3, 64.0, -19.8), tentando desviar (tentativa 3)
 [BOT]   ! preso perto de (4.9, 64.0, -19.7), tentando desviar (tentativa 4)
-[BOT] falhas: 0
+[BOT]   ! monta-carga C → módulo de observação: o monta-carga subiu sem o jogador — tentando embarcar de novo
+[BOT] falhas: 23
+[BOT]   ✖ monta-carga C → módulo de observação: o jogador não foi carregado pelo monta-carga (y=64.0, esperava 75.5)
+[BOT]   ✖ rota inválida: alvo (31.5, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (24.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (16.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (8.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (0.0, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (-9.5, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (-9.0, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (-10.0, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (-9.5, 76.0, 8.2) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (-9.5, 76.0, 7.2) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ nada no raio de interação em console do Protocolo Espelho ((-11.0, 76.0, 8.0)) — objeto: sim
+[BOT]   ✖ rota inválida: alvo (0.0, 76.0, 15.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (9.0, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (12.5, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (13.0, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (12.0, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (12.5, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (12.5, 76.0, 7.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ nada no raio de interação em console ECHO ((11.0, 76.0, 8.0)) — objeto: sim
+[BOT]   ✖ o console ECHO não abriu o painel de decisão final (painel: <null>)
+[BOT]   ✖ nenhum final foi registrado
+[BOT]   ✖ a tela de desfecho NÃO apareceu
 [BOT] screenshots: 15 em /home/user/bot_shots
 [BOT] =====================
