@@ -692,7 +692,7 @@ func _run() -> void:
 	# ---------- monta-carga C → módulo de observação ----------
 	await use_prompt("chamar", "painel de chamada do monta-carga (observação)", 64.0)
 	await _wait_lift_at(63.87, "chamada do monta-carga C")
-	await walk_to(Vector3(34.1, 64, 0.0), 0.8)
+	await walk_to(Vector3(34.1, 64, 0.0), 0.45)
 	await use_prompt("operar", "painel da plataforma (módulo)", 64.0, 0.4)
 	await _wait_ride_up(75.5, "monta-carga C → módulo de observação")
 	await walk_to(Vector3(31.5, 76, 0.0), 1.0)
