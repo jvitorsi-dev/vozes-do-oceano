@@ -66,8 +66,8 @@ jobs:
         continue-on-error: true
         run: |
           sudo mkdir -p /home/user/bot_shots && sudo chmod 777 /home/user /home/user/bot_shots
-          timeout 2700 xvfb-run -a -s "-screen 0 320x180x24" "$GODOT" --path . \
-            --rendering-driver opengl3 --resolution 320x180 --fixed-fps 30 --quit-after 90000 -- --play 2>&1 | tee "$RUNNER_TEMP/play.log" || true
+          timeout 2400 xvfb-run -a -s "-screen 0 320x180x24" "$GODOT" --path . \
+            --rendering-driver opengl3 --resolution 320x180 --quit-after 90000 -- --play 2>&1 | tee "$RUNNER_TEMP/play.log" || true
           grep -a "\[BOT\]" "$RUNNER_TEMP/play.log" > docs/ci/playtest.txt || true
           tail -8 docs/ci/playtest.txt
 
