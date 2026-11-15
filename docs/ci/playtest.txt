@@ -6,8 +6,8 @@
 [BOT] ✔ o áudio da voz tem conteúdo (15.1 s)
 [BOT] ✔ abertura concluída (texto avançado)
 [BOT] ✔ mouse capturado durante o jogo (modo 2)
-[BOT] ✔ o mouse gira a câmera na horizontal (4.723 rad)
-[BOT] ✔ o mouse inclina a câmera na vertical (-1.170 rad)
+[BOT] ✔ o mouse gira a câmera na horizontal (3.163 rad)
+[BOT] ✔ o mouse inclina a câmera na vertical (-1.450 rad)
 [BOT] ✔ o mouse se recupera depois de o sistema soltar o cursor (sozinho)
 [BOT] ✔ o mouse volta a girar a câmera depois da recuperação
 [BOT] ✔ mesmo com o cursor solto o olhar responde
@@ -23,7 +23,9 @@
 [BOT] ✔ diário de Íris lido no mesmo terminal
 [BOT] screenshot: /home/user/bot_shots/01-02-briefing.png
 [BOT] ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 1)
-[BOT] ! preso perto de (-11.9, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT] ! preso perto de (-12.3, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT] ✖ não cheguei em (-14.0, 40.0, -8.0) (parei em (-13.2, 40.0, -14.3), a 6.4 m)
+[BOT] ✖ não cheguei em (-36.7, 40.0, 7.1) (parei em (-27.5, 40.0, 3.4), a 10.0 m)
 [BOT] ✔ usei bancada de manutenção — prompt: "Ler terminal"
 [BOT] ✔ usei bancada de manutenção (reabrindo) — prompt: "Ler terminal"
 [BOT] ✔ manual do reator lido
@@ -58,12 +60,13 @@
 [BOT] ✔ usei painel de chamada do monta-carga (convés 2) — prompt: "Chamar monta-carga"
 [BOT] ✔ chamada do monta-carga B: plataforma no nível 52
 [BOT] ✔ usei painel da plataforma (convés 3) — prompt: "Operar monta-carga"
-[BOT] ✔ monta-carga B → convés 3 (jogador chegou em y=63.6)
+[BOT] ✔ monta-carga B → convés 3 (jogador chegou em y=63.5)
 [BOT] screenshot: /home/user/bot_shots/07-08-conves3.png
-[BOT] ! preso perto de (0.3, 64.0, -19.8), tentando desviar (tentativa 3)
+[BOT] ! preso perto de (0.3, 64.0, -19.9), tentando desviar (tentativa 3)
 [BOT] ✔ usei console de vigilância — prompt: "Usar console de vigilância"
 [BOT] ✔ CCTV com 12 canais registrados
 [BOT] ! preso perto de (4.9, 64.0, -19.7), tentando desviar (tentativa 4)
+[BOT] ✖ não cheguei em (-2.5, 64.0, -20.1) (parei em (0.4, 64.0, -19.1), a 3.1 m)
 [BOT] ✔ usei terminal pessoal de Íris — prompt: "Ler terminal"
 [BOT] ✔ usei cofre (sala segura) — prompt: "SALA SEGURA — CÓDIGO"
 [BOT] ✔ código do teclado confere com a pista (cofre da sala segura)
@@ -93,9 +96,12 @@
 [BOT] verificações ok: 70
 [BOT] avisos: 4
 [BOT]   ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 1)
-[BOT]   ! preso perto de (-11.9, 40.0, -14.3), tentando desviar (tentativa 2)
-[BOT]   ! preso perto de (0.3, 64.0, -19.8), tentando desviar (tentativa 3)
+[BOT]   ! preso perto de (-12.3, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT]   ! preso perto de (0.3, 64.0, -19.9), tentando desviar (tentativa 3)
 [BOT]   ! preso perto de (4.9, 64.0, -19.7), tentando desviar (tentativa 4)
-[BOT] falhas: 0
+[BOT] falhas: 3
+[BOT]   ✖ não cheguei em (-14.0, 40.0, -8.0) (parei em (-13.2, 40.0, -14.3), a 6.4 m)
+[BOT]   ✖ não cheguei em (-36.7, 40.0, 7.1) (parei em (-27.5, 40.0, 3.4), a 10.0 m)
+[BOT]   ✖ não cheguei em (-2.5, 64.0, -20.1) (parei em (0.4, 64.0, -19.1), a 3.1 m)
 [BOT] screenshots: 15 em /home/user/bot_shots
 [BOT] =====================

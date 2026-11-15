@@ -200,6 +200,23 @@ func _build_environment() -> void:
 	e.set_glow_level(3, 0.6)
 	e.set_glow_level(5, 0.7)
 	e.glow_map_strength = 0.45
+	# Reflexo de ambiente. O fundo é preto (espaço), e era ele que os metais
+	# refletiam: todo piso de chapa, tubo e painel metálico ficava preto por
+	# mais luz que houvesse. Um céu neutro e fraco, usado SÓ como fonte de
+	# reflexo (o fundo continua preto), devolve o brilho frio do aço.
+	var ceu_mat := ProceduralSkyMaterial.new()
+	ceu_mat.sky_top_color = Color(0.30, 0.37, 0.46)
+	ceu_mat.sky_horizon_color = Color(0.34, 0.39, 0.44)
+	ceu_mat.ground_bottom_color = Color(0.15, 0.17, 0.19)
+	ceu_mat.ground_horizon_color = Color(0.30, 0.34, 0.38)
+	ceu_mat.sun_angle_max = 0.0
+	ceu_mat.sun_curve = 0.01
+	var ceu := Sky.new()
+	ceu.sky_material = ceu_mat
+	ceu.radiance_size = Sky.RADIANCE_SIZE_32
+	ceu.process_mode = Sky.PROCESS_MODE_QUALITY
+	e.sky = ceu
+	e.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	we.environment = e
 	add_child(we)
 

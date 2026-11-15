@@ -202,7 +202,6 @@ static func barrel(parent: Node3D, pos: Vector3, seed_v := 1) -> void:
 		Vector2(0.283, 0.615), Vector2(0.283, 0.84), Vector2(0.292, 0.855), Vector2(0.292, 0.88),
 		Vector2(0.272, 0.88), Vector2(0.268, 0.862), Vector2(0.0, 0.862),
 	]), 18, false, "tambor200"), Vector3.ZERO, m, Vector3.ZERO, Vector3.ONE, "tambor")
-	G3D.colisor(g, Vector3(0.5, 0.88, 0.5), Vector3(0, 0.44, 0))
 	# bocais da tampa
 	Detail._cil(g, 0.045, 0.035, Vector3(0.17, 0.875, 0.0), Mats.get_mat("metal"), Vector3.ZERO, false)
 	Detail._cil(g, 0.022, 0.03, Vector3(-0.15, 0.872, 0.08), Mats.get_mat("metal"), Vector3.ZERO, false)
@@ -293,7 +292,6 @@ static func cylinder(parent: Node3D, pos: Vector3, seed_v := 1) -> void:
 		Vector2(0.14, 1.02), Vector2(0.132, 1.09), Vector2(0.108, 1.15), Vector2(0.07, 1.19),
 		Vector2(0.045, 1.205), Vector2(0.045, 1.25), Vector2(0.0, 1.25),
 	]), 14, false, "garrafa_gas"), Vector3.ZERO, m, Vector3.ZERO, Vector3.ONE, "garrafa")
-	G3D.colisor(g, Vector3(0.26, 1.25, 0.26), Vector3(0, 0.625, 0))
 	# capacete de proteção da válvula + faixa de identificação no ombro
 	G3D.peca(g, MeshKit.torno(PackedVector2Array([
 		Vector2(0.062, 0.0), Vector2(0.062, 0.10), Vector2(0.05, 0.135), Vector2(0.0, 0.145),
