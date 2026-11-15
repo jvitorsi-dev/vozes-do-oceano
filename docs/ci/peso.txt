@@ -1,4 +1,4 @@
 === PESO DO CENARIO ===
 malhas por grupo: Vestimenta=419  Anel_52=81  Anel_40=79  Anel_64=70  Observatorio=35  root=31  Refeitorio=26  CorredorObs=25  Refeitorio_Ruina=20  Refeitorio_Intacto=19  Antessala=14  Servico_Extensao=12  Comando=11  Deposito=11  
-nos=4315 malhas=1304 luzes=173 colisores=502
-fps=1.0 draw_calls=5860 primitivas=1228110 memoria=149.5 MB
+nos=4322 malhas=1304 luzes=173 colisores=502
+fps=1.0 draw_calls=5860 primitivas=1228110 memoria=147.5 MB
