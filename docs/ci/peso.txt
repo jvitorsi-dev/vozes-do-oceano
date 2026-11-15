@@ -1,4 +1,4 @@
 === PESO DO CENARIO ===
-malhas por grupo: Vestimenta=453  Anel_52=81  Anel_40=79  Anel_64=70  Observatorio=35  Refeitorio_Ruina=32  Refeitorio_Intacto=31  root=31  Refeitorio=26  CorredorObs=25  Antessala=14  Servico_Extensao=12  Eclusa=11  Cabines=11  
-nos=4442 malhas=1362 luzes=173 colisores=488
-fps=1.0 draw_calls=6178 primitivas=1318518 memoria=149.8 MB
+malhas por grupo: Vestimenta=453  Anel_52=81  Anel_40=79  Anel_64=70  Observatorio=35  Refeitorio_Ruina=32  Refeitorio_Intacto=31  root=31  Refeitorio=26  CorredorObs=25  Engenharia=17  Antessala=14  Servico_Extensao=12  Eclusa=11  
+nos=4456 malhas=1368 luzes=176 colisores=488
+fps=1.0 draw_calls=6198 primitivas=1319078 memoria=149.9 MB
