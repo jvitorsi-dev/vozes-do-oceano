@@ -84,25 +84,28 @@ static func pipe_run(parent: Node3D, a: Vector3, b: Vector3, count := 3, radius 
 	return g
 
 
-## Volante de válvula com raios, castelo e um pouco de ferrugem na haste.
+## Volante de válvula: aro torneado, três raios, cubo e haste com castelo.
+## As malhas são unitárias e compartilhadas — o raio entra na escala.
 static func valve_wheel(parent: Node3D, pos: Vector3, yaw: float, r: float = 0.22) -> Node3D:
 	var g := Node3D.new()
 	g.name = "Valvula"
 	g.position = pos
 	g.rotation.y = yaw
 	parent.add_child(g)
-	var m := _mat("metal_rust")
-	_cil(g, 0.035, r * 2.2, Vector3(0, 0, 0), _mat("metal"), Vector3(PI * 0.5, 0, 0), false)
-	# aro
-	var seg := 8
-	for i in seg:
-		var ang := TAU * float(i) / float(seg)
-		var p := Vector3(cos(ang) * r, sin(ang) * r, 0)
-		_cil(g, 0.03, r * 0.55, p, m, Vector3(0, 0, ang + PI * 0.5), false)
-	# raios
+	var m := _mat("paint_red")
+	var aco := _mat("metal")
+	# haste e castelo (ao longo de Z local, saindo da parede/tubo)
+	_cil(g, 0.035, r * 2.2, Vector3(0, 0, 0), aco, Vector3(PI * 0.5, 0, 0), false)
+	_cil(g, r * 0.30, r * 0.5, Vector3(0, 0, -r * 0.55), _mat("metal_rust"), Vector3(PI * 0.5, 0, 0), false)
+	# aro (toro unitário de raio 1 deitado em XZ → em pé, de frente para Z)
+	var zf := r * 0.75
+	G3D.peca(g, MeshKit.toro(1.0, 0.11, 20, 6), Vector3(0, 0, zf), m, Vector3(PI * 0.5, 0, 0),
+			Vector3(r, r, r), "aro")
 	for i in 3:
-		var ang2 := TAU * float(i) / 3.0
-		_cil(g, 0.024, r * 1.9, Vector3(0, 0, 0), m, Vector3(0, 0, ang2 + PI * 0.5), false)
+		var ang2 := PI * float(i) / 3.0
+		_cil(g, r * 0.08, r * 1.95, Vector3(0, 0, zf), m, Vector3(0, 0, ang2), false)
+	_cil(g, r * 0.24, r * 0.30, Vector3(0, 0, zf), m, Vector3(PI * 0.5, 0, 0), false)
+	_cil(g, r * 0.12, r * 0.42, Vector3(0, 0, zf + r * 0.05), aco, Vector3(PI * 0.5, 0, 0), 6)
 	return g
 
 
@@ -221,11 +224,11 @@ static func gauge_panel(parent: Node3D, pos: Vector3, yaw: float, n := 3, seed_v
 		var x: float = (float(i) - float(n - 1) * 0.5) * 0.22
 		# mostrador
 		_cil(g, 0.085, 0.05, Vector3(x, 0.06, 0.07), _mat("panel_green"), Vector3(PI * 0.5, 0, 0), false)
-		_cil(g, 0.072, 0.02, Vector3(x, 0.06, 0.10), Mats.emissive(Color(0.95, 0.72, 0.30), 0.9),
+		_cil(g, 0.072, 0.02, Vector3(x, 0.06, 0.10), Mats.emissive_c(Color(0.95, 0.72, 0.30), 0.9),
 			Vector3(PI * 0.5, 0, 0), false)
 		# ponteiro (posição diferente em cada relógio)
 		var ang := rng.randf_range(-2.2, 1.4)
-		G3D.box(g, Vector3(0.008, 0.055, 0.006), Vector3(x, 0.06, 0.115), Mats.emissive(Color(1, 0.35, 0.15), 1.2),
+		G3D.box(g, Vector3(0.008, 0.055, 0.006), Vector3(x, 0.06, 0.115), Mats.emissive_c(Color(1, 0.35, 0.15), 1.2),
 			false, Vector3(0, 0, ang), "ponteiro")
 	# botões e alavanca
 	for i in 3:
@@ -252,7 +255,7 @@ static func breaker_panel(parent: Node3D, pos: Vector3, yaw: float, seed_v := 1)
 			G3D.box(g, Vector3(0.10, 0.09, 0.05), Vector3(x, y, 0.14), _mat("metal"), false, Vector3.ZERO, "disjuntor")
 			# metade desligada, alguns queimados
 			if rng.randf() < 0.35:
-				G3D.box(g, Vector3(0.07, 0.02, 0.012), Vector3(x, y + 0.015, 0.17), Mats.emissive(Color(0.9, 0.2, 0.12), 1.0),
+				G3D.box(g, Vector3(0.07, 0.02, 0.012), Vector3(x, y + 0.015, 0.17), Mats.emissive_c(Color(0.9, 0.2, 0.12), 1.0),
 					false, Vector3.ZERO, "alavanca_off")
 	# fiação solta na parte de baixo
 	for i in 5:
@@ -271,7 +274,7 @@ static func louver(parent: Node3D, pos: Vector3, yaw: float, w := 0.9, h := 0.55
 	parent.add_child(g)
 	var moldura := 0.06
 	G3D.box(g, Vector3(w, h, 0.14), Vector3.ZERO, _mat("metal_rust"), false, Vector3.ZERO, "moldura")
-	G3D.box(g, Vector3(w - moldura * 2.0, h - moldura * 2.0, 0.04), Vector3(0, 0, 0.06), Mats.emissive(Color(0.02, 0.03, 0.035), 0.2),
+	G3D.box(g, Vector3(w - moldura * 2.0, h - moldura * 2.0, 0.04), Vector3(0, 0, 0.06), Mats.emissive_c(Color(0.02, 0.03, 0.035), 0.2),
 		false, Vector3.ZERO, "fundo")
 	var n := int(h / 0.13)
 	for i in n:
@@ -301,7 +304,7 @@ static func monitor_bank(parent: Node3D, pos: Vector3, yaw: float, cols := 3, ro
 			var x: float = (float(c) - float(cols - 1) * 0.5) * 0.30
 			var y: float = (float(r) - float(rows - 1) * 0.5) * 0.26
 			var cor := Color(0.30, 0.90, 0.65) if (r + c) % 3 != 0 else Color(0.95, 0.65, 0.20)
-			G3D.box(g, Vector3(0.24, 0.19, 0.02), Vector3(x, y, 0.09), Mats.emissive(cor, 0.85), false, Vector3.ZERO, "tela")
+			G3D.box(g, Vector3(0.24, 0.19, 0.02), Vector3(x, y, 0.09), Mats.emissive_c(cor, 0.85), false, Vector3.ZERO, "tela")
 			G3D.box(g, Vector3(0.26, 0.21, 0.03), Vector3(x, y, 0.075), _mat("metal_rust"), false, Vector3.ZERO, "moldura")
 	G3D.box(g, Vector3(w, 0.06, 0.30), Vector3(0, -h * 0.5 - 0.02, 0.06), _mat("metal"), false, Vector3.ZERO, "bandeja")
 	return g

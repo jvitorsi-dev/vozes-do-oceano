@@ -67,6 +67,7 @@ static func room(parent: Node3D, x1: float, z1: float, x2: float, z2: float,
 		y: float, h: float, opts: Dictionary = {}) -> Dictionary:
 	var root := Node3D.new()
 	root.name = String(opts.get("name", "Sala"))
+	root.set_meta(Batcher.META_PROPRIO, true)
 	parent.add_child(root)
 
 	var floor_mat: Material = opts.get("floor", Mats.get_mat("floor"))
@@ -211,8 +212,31 @@ static func monitor(parent: Node3D, pos: Vector3, yaw: float, size := Vector2(0.
 	g.position = pos
 	g.rotation.y = yaw
 	parent.add_child(g)
-	var body := G3D.box(g, Vector3(size.x + 0.09, size.y + 0.09, 0.14), Vector3(0, 0, -0.08), Mats.get_mat("metal_rust"), false)
-	body.rotation.x = tilt * 0.3
+	# gabinete de CRT: moldura frontal grossa + traseira afunilada do tubo.
+	# Tudo num só nó inclinado junto com a tela (antes o corpo ficava torto
+	# em relação ao vidro e a tela "descolava" do aparelho).
+	var corpo := Node3D.new()
+	corpo.rotation.x = tilt
+	g.add_child(corpo)
+	var casca := Mats.get_mat("plastic_old")
+	var w := size.x + 0.10
+	var h := size.y + 0.10
+	var aro := 0.05
+	# moldura: quatro réguas em volta do vidro, salientes 2 cm
+	G3D.box(corpo, Vector3(w, aro, 0.10), Vector3(0, h * 0.5 - aro * 0.5, -0.03), casca, false, Vector3.ZERO, "aro")
+	G3D.box(corpo, Vector3(w, aro, 0.10), Vector3(0, -h * 0.5 + aro * 0.5, -0.03), casca, false, Vector3.ZERO, "aro")
+	G3D.box(corpo, Vector3(aro, h - aro * 2.0, 0.10), Vector3(-w * 0.5 + aro * 0.5, 0, -0.03), casca, false, Vector3.ZERO, "aro")
+	G3D.box(corpo, Vector3(aro, h - aro * 2.0, 0.10), Vector3(w * 0.5 - aro * 0.5, 0, -0.03), casca, false, Vector3.ZERO, "aro")
+	# fundo escuro atrás do vidro
+	G3D.box(corpo, Vector3(w - aro, h - aro, 0.02), Vector3(0, 0, -0.012), Mats.get_mat("plastic_dark"), false, Vector3.ZERO, "fundo")
+	# traseira do tubo (tronco deitado: base na moldura, afunila para trás)
+	var prof := clampf(size.x * 0.55, 0.20, 0.42)
+	G3D.peca(corpo, MeshKit.tronco(Vector2(w, h), Vector2(w * 0.52, h * 0.55), prof, Vector2(0, -h * 0.08)),
+			Vector3(0, 0, -0.08 - prof * 0.5), casca, Vector3(-PI * 0.5, 0, 0), Vector3.ONE, "tubo")
+	# botões e luz-piloto na régua de baixo
+	for kb in 2:
+		Detail._cil(corpo, 0.011, 0.02, Vector3(w * 0.5 - 0.05 - float(kb) * 0.045, -h * 0.5 + aro * 0.5, 0.025),
+				Mats.get_mat("plastic_dark"), Vector3(PI * 0.5, 0, 0), 6)
 	var scr := MeshInstance3D.new()
 	var pm := PlaneMesh.new()
 	pm.size = size
@@ -560,9 +584,9 @@ static func lift(parent: Node3D, bottom: Vector3, top: Vector3, size := Vector3(
 	platform.sync_to_physics = true
 	platform.position = bottom
 	parent.add_child(platform)
-	G3D.box(platform, size, Vector3.ZERO, Mats.get_mat("floor_grating"), true, Vector3.ZERO, "plataforma")
+	G3D.box(platform, size, Vector3.ZERO, Mats.get_mat("floor_grating_local"), true, Vector3.ZERO, "plataforma")
 	# sem guarda-corpo: o poço é perigoso de verdade (cair = descer um convés)
-	G3D.box(platform, Vector3(size.x, 0.05, size.z), Vector3(0, 0.17, 0), Mats.get_mat("hazard"), false, Vector3.ZERO, "faixa")
+	G3D.box(platform, Vector3(size.x, 0.05, size.z), Vector3(0, 0.17, 0), Mats.get_mat("hazard_local"), false, Vector3.ZERO, "faixa")
 	var o := open_dir.normalized()
 	var lamp := OmniLight3D.new()
 	lamp.position = Vector3(0, 2.2, 0)

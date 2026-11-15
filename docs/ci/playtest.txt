@@ -1,0 +1,101 @@
+[BOT] ===== EXPEDIÇÃO AUTOMÁTICA — VOZES DO OCEANO =====
+[BOT] ✔ barramentos de áudio criados (Music/SFX/Voice/Radio)
+[BOT] ✔ as 9 vozes da tripulação estão carregadas
+[BOT] ✔ camadas de trilha ativas
+[BOT] ✔ a voz da tripulação realmente toca (iris_01)
+[BOT] ✔ o áudio da voz tem conteúdo (15.1 s)
+[BOT] ✔ abertura concluída (texto avançado)
+[BOT] ✔ mouse capturado durante o jogo (modo 2)
+[BOT] ✔ o mouse gira a câmera na horizontal (4.723 rad)
+[BOT] ✔ o mouse inclina a câmera na vertical (-1.170 rad)
+[BOT] ✔ o mouse se recupera depois de o sistema soltar o cursor (sozinho)
+[BOT] ✔ o mouse volta a girar a câmera depois da recuperação
+[BOT] ✔ mesmo com o cursor solto o olhar responde
+[BOT] ✔ arrastar com o botão esquerdo gira a câmera (esquema alternativo)
+[BOT] diag sensibilidade: 100 px -> 0.2600 rad (esperado 0.2600, fator 1.00x)
+[BOT] ✔ sensibilidade do mouse dentro do previsto (fator 1.00x)
+[BOT] ✔ jogador de pé no piso do hangar ao acordar ((0.0, 40.0, -24.0))
+[BOT] ✔ vozes da tripulação carregadas
+[BOT] screenshot: /home/user/bot_shots/00-01-hangar.png
+[BOT] ✔ usei terminal do hangar — prompt: "Ler terminal"
+[BOT] ✔ usei terminal do hangar (reabrindo) — prompt: "Ler terminal"
+[BOT] ✔ briefing lido (bl_000)
+[BOT] ✔ diário de Íris lido no mesmo terminal
+[BOT] screenshot: /home/user/bot_shots/01-02-briefing.png
+[BOT] ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 1)
+[BOT] ! preso perto de (-11.9, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT] ✔ usei bancada de manutenção — prompt: "Ler terminal"
+[BOT] ✔ usei bancada de manutenção (reabrindo) — prompt: "Ler terminal"
+[BOT] ✔ manual do reator lido
+[BOT] ✔ o manual traz a pista da sequência (A2/B1/C3/D4)
+[BOT] ✔ usei fusível de 400 A — prompt: "Pegar fusível de 400 A"
+[BOT] ✔ fusível coletado
+[BOT] screenshot: /home/user/bot_shots/02-03-deposito.png
+[BOT] ✔ usei painel de chamada do monta-carga (convés 1) — prompt: "Chamar monta-carga"
+[BOT] ✔ chamada do monta-carga A: plataforma no nível 40
+[BOT] ✔ usei painel da plataforma (subindo) — prompt: "Operar monta-carga"
+[BOT] ✔ monta-carga A → convés 2 (jogador chegou em y=51.5)
+[BOT] screenshot: /home/user/bot_shots/03-04-conves2.png
+[BOT] ✔ usei painel de energia — prompt: "Acionar painel de energia"
+[BOT] ✔ código do teclado confere com a pista (disjuntores do reator)
+[BOT] ✔ ENERGIA RESTAURADA (sequência A2-B1-C3-D4 aceita)
+[BOT] ✔ capítulo 1 iniciou após a energia
+[BOT] screenshot: /home/user/bot_shots/04-05-energia.png
+[BOT] ✔ a lanterna consome bateria
+[BOT] ✔ lanterna acendeu visivelmente
+[BOT] ✔ usei estação de análise (labs) — prompt: "Ler terminal"
+[BOT] ✔ usei estação de análise (reabrindo) — prompt: "Ler terminal"
+[BOT] ✔ usei estação de análise (reabrindo) — prompt: "Ler terminal"
+[BOT] ✔ Protocolo Espelho lido
+[BOT] ✔ capítulo 2 iniciou ao ler o Protocolo Espelho
+[BOT] screenshot: /home/user/bot_shots/05-06-labs.png
+[BOT] ✔ usei transceptor — prompt: "Sintonizar rádio"
+[BOT] ✔ transceptor com 6 frequências
+[BOT] ✔ usei transcrições de comunicação — prompt: "Ler terminal"
+[BOT] ✔ transcrição de Nadia lida
+[BOT] ✔ a pista do código do cofre está no texto (onze de abril)
+[BOT] screenshot: /home/user/bot_shots/06-07-radio.png
+[BOT] ✔ usei painel de chamada do monta-carga (convés 2) — prompt: "Chamar monta-carga"
+[BOT] ✔ chamada do monta-carga B: plataforma no nível 52
+[BOT] ✔ usei painel da plataforma (convés 3) — prompt: "Operar monta-carga"
+[BOT] ✔ monta-carga B → convés 3 (jogador chegou em y=63.6)
+[BOT] screenshot: /home/user/bot_shots/07-08-conves3.png
+[BOT] ! preso perto de (0.3, 64.0, -19.8), tentando desviar (tentativa 3)
+[BOT] ✔ usei console de vigilância — prompt: "Usar console de vigilância"
+[BOT] ✔ CCTV com 12 canais registrados
+[BOT] ! preso perto de (4.9, 64.0, -19.7), tentando desviar (tentativa 4)
+[BOT] ✔ usei terminal pessoal de Íris — prompt: "Ler terminal"
+[BOT] ✔ usei cofre (sala segura) — prompt: "SALA SEGURA — CÓDIGO"
+[BOT] ✔ código do teclado confere com a pista (cofre da sala segura)
+[BOT] ✔ cartão de engenharia obtido (código 1104 = 11 de abril)
+[BOT] screenshot: /home/user/bot_shots/08-09-comando.png
+[BOT] ✔ usei gravador da câmara do sino — prompt: "Reproduzir fita"
+[BOT] ✔ fita do silêncio ouvida
+[BOT] screenshot: /home/user/bot_shots/09-10-sino.png
+[BOT] ✔ porta selada do módulo: aberta por conta própria (anomalia confirmada)
+[BOT] screenshot: /home/user/bot_shots/10-11-corredor-obs.png
+[BOT] ✔ usei painel de chamada do monta-carga (observação) — prompt: "Chamar monta-carga"
+[BOT] ✔ chamada do monta-carga C: plataforma no nível 64
+[BOT] ✔ usei painel da plataforma (módulo) — prompt: "Operar monta-carga"
+[BOT] ✔ monta-carga C → módulo de observação (jogador chegou em y=75.5)
+[BOT] screenshot: /home/user/bot_shots/11-12-antessala.png
+[BOT] screenshot: /home/user/bot_shots/12-13-modulo.png
+[BOT] ✔ usei console do Protocolo Espelho — prompt: "Ler terminal"
+[BOT] screenshot: /home/user/bot_shots/13-14-janela-do-modulo.png
+[BOT] ✔ usei console ECHO — prompt: "Usar console ECHO — responder ao oceano"
+[BOT] ✔ a decisão final oferece 4 respostas
+[BOT] ✔ respondi ao oceano: FALAR (chamado)
+[BOT] ✔ final registrado (final_a)
+[BOT] ✔ a tela de desfecho apareceu
+[BOT] screenshot: /home/user/bot_shots/14-15-final.png
+[BOT] ✔ barramentos de áudio íntegros
+[BOT] ===== RELATÓRIO =====
+[BOT] verificações ok: 70
+[BOT] avisos: 4
+[BOT]   ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 1)
+[BOT]   ! preso perto de (-11.9, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT]   ! preso perto de (0.3, 64.0, -19.8), tentando desviar (tentativa 3)
+[BOT]   ! preso perto de (4.9, 64.0, -19.7), tentando desviar (tentativa 4)
+[BOT] falhas: 0
+[BOT] screenshots: 15 em /home/user/bot_shots
+[BOT] =====================

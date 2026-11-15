@@ -13,13 +13,16 @@ static func _name(prefix: String) -> String:
 
 
 ## Caixa com ou sem colisão.
+## Prefixos que são estrutura (paredes, lajes, vidros, tampas falsas): ficam
+## de aresta viva para emendarem sem fresta com a peça vizinha.
+const SEM_CHANFRO := ["floor", "ceil", "wallseg", "vidro", "parede_falsa", "nucleo", "plataforma",
+		"degrau", "faixa", "faixa_poco", "hazard", "portao", "chapa_soldada", "acesso"]
+
 static func box(parent: Node3D, size: Vector3, pos: Vector3, mat: Material,
 		solid: bool = true, rot: Vector3 = Vector3.ZERO, prefix: String = "box") -> Node3D:
 	var n := MeshInstance3D.new()
 	n.name = _name(prefix)
-	var mesh := BoxMesh.new()
-	mesh.size = size
-	n.mesh = mesh
+	n.mesh = _malha_caixa(size, prefix)
 	n.material_override = mat
 	n.position = pos
 	n.rotation = rot
@@ -32,6 +35,42 @@ static func box(parent: Node3D, size: Vector3, pos: Vector3, mat: Material,
 		shape.shape = bs
 		body.add_child(shape)
 		n.add_child(body)
+	return n
+
+
+## Objetos (móveis, caixas, carcaças) ganham aresta chanfrada; tiras finas e
+## estrutura continuam caixas simples — que o Batcher funde num lote só.
+static func _malha_caixa(size: Vector3, prefix: String) -> Mesh:
+	var menor := minf(size.x, minf(size.y, size.z))
+	var maior := maxf(size.x, maxf(size.y, size.z))
+	if menor >= 0.10 and maior <= 2.6 and not SEM_CHANFRO.has(prefix):
+		# medidas arredondadas ao centímetro: peças quase iguais dividem a malha
+		var q := Vector3(snappedf(size.x, 0.01), snappedf(size.y, 0.01), snappedf(size.z, 0.01))
+		return MeshKit.caixa(q, clampf(menor * 0.09, 0.008, 0.028))
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	return mesh
+
+
+## Colisor de caixa sem malha (para objetos cujo desenho é feito de várias peças).
+static func colisor(parent: Node3D, size: Vector3, pos: Vector3, rot: Vector3 = Vector3.ZERO) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	body.position = pos
+	body.rotation = rot
+	var shape := CollisionShape3D.new()
+	var bs := BoxShape3D.new()
+	bs.size = size
+	shape.shape = bs
+	body.add_child(shape)
+	parent.add_child(body)
+	return body
+
+
+## Instancia uma malha compartilhada do MeshKit.
+static func peca(parent: Node3D, mesh: Mesh, pos: Vector3, mat: Material,
+		rot: Vector3 = Vector3.ZERO, escala: Vector3 = Vector3.ONE, prefix: String = "peca") -> MeshInstance3D:
+	var n := mesh_inst(parent, mesh, pos, mat, rot, prefix)
+	n.scale = escala
 	return n
 
 
@@ -53,7 +92,8 @@ static func cyl(parent: Node3D, radius: float, height: float, pos: Vector3, mat:
 	mesh.top_radius = radius
 	mesh.bottom_radius = radius
 	mesh.height = height
-	mesh.radial_segments = 12
+	# peça grande não pode mostrar as facetas: mais lados conforme o raio
+	mesh.radial_segments = 12 if radius < 0.4 else (24 if radius < 1.2 else 36)
 	mesh.rings = 1
 	var n := mesh_inst(parent, mesh, pos, mat, rot, "cyl")
 	if solid:
