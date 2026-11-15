@@ -34,7 +34,7 @@
 [BOT] ✔ usei painel de chamada do monta-carga (convés 1) — prompt: "Chamar monta-carga"
 [BOT] ✔ chamada do monta-carga A: plataforma no nível 40
 [BOT] ✔ usei painel da plataforma (subindo) — prompt: "Operar monta-carga"
-[BOT] ✔ monta-carga A → convés 2 (jogador chegou em y=51.6)
+[BOT] ✔ monta-carga A → convés 2 (jogador chegou em y=51.5)
 [BOT] screenshot: /home/user/bot_shots/03-04-conves2.png
 [BOT] ✔ usei painel de energia — prompt: "Acionar painel de energia"
 [BOT] ✔ código do teclado confere com a pista (disjuntores do reator)
@@ -58,7 +58,7 @@
 [BOT] ✔ usei painel de chamada do monta-carga (convés 2) — prompt: "Chamar monta-carga"
 [BOT] ✔ chamada do monta-carga B: plataforma no nível 52
 [BOT] ✔ usei painel da plataforma (convés 3) — prompt: "Operar monta-carga"
-[BOT] ✔ monta-carga B → convés 3 (jogador chegou em y=63.5)
+[BOT] ✔ monta-carga B → convés 3 (jogador chegou em y=63.6)
 [BOT] screenshot: /home/user/bot_shots/07-08-conves3.png
 [BOT] ! preso perto de (0.3, 64.0, -19.8), tentando desviar (tentativa 3)
 [BOT] ✔ usei console de vigilância — prompt: "Usar console de vigilância"
@@ -77,7 +77,7 @@
 [BOT] ✔ usei painel de chamada do monta-carga (observação) — prompt: "Chamar monta-carga"
 [BOT] ✔ chamada do monta-carga C: plataforma no nível 64
 [BOT] ✔ usei painel da plataforma (módulo) — prompt: "Operar monta-carga"
-[BOT] ✔ monta-carga C → módulo de observação (jogador chegou em y=75.6)
+[BOT] ✔ monta-carga C → módulo de observação (jogador chegou em y=75.5)
 [BOT] screenshot: /home/user/bot_shots/11-12-antessala.png
 [BOT] screenshot: /home/user/bot_shots/12-13-modulo.png
 [BOT] ✔ usei console do Protocolo Espelho — prompt: "Ler terminal"

@@ -365,7 +365,9 @@ static func _build_deck2(root: Node3D) -> void:
 		"floor": Mats.get_mat("floor_plate"),
 		"skip_walls": ["w"],
 		"pipes": true,
-		"lamps": _lamp_row(false, -10.0, 10.0, 30.0, 3, false, 0.3),
+		# duas fileiras: a sala tem 20 m de largura e paredes escuras — uma só
+		# deixava as laterais no breu mesmo com a força ligada
+		"lamps": _lamp_row(false, -10.0, 10.0, 24.0, 3, false, 0.3) + _lamp_row(false, -10.0, 10.0, 33.0, 3, false, 0.3),
 	}, "engenharia", "ENGENHARIA — REATOR E CIRCUITOS")
 	G3D.cyl(root, 2.2, 4.0, Vector3(34.0, D2 + 2.0, 0.0), Mats.get_mat("metal_rust"))
 	for i in 3:
