@@ -186,15 +186,28 @@ static func barrel(parent: Node3D, pos: Vector3, seed_v := 1) -> void:
 	g.position = pos
 	g.rotation.y = rng.randf() * TAU
 	parent.add_child(g)
-	var m := Mats.get_mat("metal_rust") if rng.randf() < 0.6 else Mats.get_mat("paint_blue")
-	Detail._cil(g, 0.29, 0.88, Vector3(0, 0.44, 0), m, Vector3.ZERO, true)
-	for k in 2:
-		Detail._cil(g, 0.305, 0.05, Vector3(0, 0.28 + float(k) * 0.33, 0), Mats.get_mat("metal"), Vector3.ZERO, false)
-	Detail._cil(g, 0.30, 0.03, Vector3(0, 0.885, 0), Mats.get_mat("metal"), Vector3.ZERO, false)
-	# tampa de tampo com pequeno bocal
-	Detail._cil(g, 0.07, 0.05, Vector3(0.17, 0.90, 0.0), Mats.get_mat("metal_rust"), Vector3.ZERO, false)
-	# etiqueta de conteúdo (faixa amarela gasta)
-	G3D.box(g, Vector3(0.34, 0.12, 0.01), Vector3(0, 0.62, 0.29), Mats.get_mat("hazard"), false, Vector3.ZERO, "etiqueta")
+	var sorte := rng.randf()
+	var m := Mats.get_mat("metal_rust")
+	if sorte > 0.82:
+		m = Mats.get_mat("paint_yellow")
+	elif sorte > 0.55:
+		m = Mats.get_mat("paint_blue")
+	elif sorte > 0.38:
+		m = Mats.get_mat("paint_olive")
+	# tambor de 200 L: corpo com dois frisos rolados, rebordo e tampa rebaixada
+	G3D.peca(g, MeshKit.torno(PackedVector2Array([
+		Vector2(0.0, 0.0), Vector2(0.275, 0.0), Vector2(0.292, 0.012), Vector2(0.292, 0.03),
+		Vector2(0.283, 0.045), Vector2(0.283, 0.27), Vector2(0.297, 0.285), Vector2(0.297, 0.305),
+		Vector2(0.283, 0.32), Vector2(0.283, 0.565), Vector2(0.297, 0.58), Vector2(0.297, 0.60),
+		Vector2(0.283, 0.615), Vector2(0.283, 0.84), Vector2(0.292, 0.855), Vector2(0.292, 0.88),
+		Vector2(0.272, 0.88), Vector2(0.268, 0.862), Vector2(0.0, 0.862),
+	]), 18, false, "tambor200"), Vector3.ZERO, m, Vector3.ZERO, Vector3.ONE, "tambor")
+	G3D.colisor(g, Vector3(0.5, 0.88, 0.5), Vector3(0, 0.44, 0))
+	# bocais da tampa
+	Detail._cil(g, 0.045, 0.035, Vector3(0.17, 0.875, 0.0), Mats.get_mat("metal"), Vector3.ZERO, false)
+	Detail._cil(g, 0.022, 0.03, Vector3(-0.15, 0.872, 0.08), Mats.get_mat("metal"), Vector3.ZERO, false)
+	# etiqueta de conteúdo (faixa de aviso gasta)
+	G3D.box(g, Vector3(0.24, 0.12, 0.012), Vector3(0, 0.44, 0.281), Mats.get_mat("hazard"), false, Vector3.ZERO, "etiqueta")
 
 
 # ================================================================ CABINES
@@ -265,17 +278,29 @@ static func _laboratorios(root: Node3D) -> void:
 
 
 static func cylinder(parent: Node3D, pos: Vector3, seed_v := 1) -> void:
-	var m := Mats.get_mat("pipe")
-	var g := Node3D.new()
-	g.position = pos
-	parent.add_child(g)
-	Detail._cil(g, 0.14, 1.25, Vector3(0, 0.63, 0), m, Vector3.ZERO, true)
-	Detail._cil(g, 0.15, 0.06, Vector3(0, 1.05, 0), Mats.get_mat("metal"), Vector3.ZERO, false)
-	Detail._cil(g, 0.06, 0.12, Vector3(0, 1.30, 0), Mats.get_mat("metal_rust"), Vector3.ZERO, false)
-	Detail._cil(g, 0.16, 0.05, Vector3(0, 0.9, 0), Mats.get_mat("hazard"), Vector3.ZERO, false)
 	var r := RandomNumberGenerator.new()
 	r.seed = seed_v
+	var g := Node3D.new()
+	g.name = "CilindroGas"
+	g.position = pos
 	g.rotation.y = r.randf() * 0.6
+	parent.add_child(g)
+	var cores := ["paint_blue", "paint_olive", "paint_grey", "paint_red"]
+	var m := Mats.get_mat(cores[seed_v % cores.size()])
+	# garrafa de gás: pé rebaixado, corpo, ombro abaulado, gargalo
+	G3D.peca(g, MeshKit.torno(PackedVector2Array([
+		Vector2(0.0, 0.02), Vector2(0.10, 0.02), Vector2(0.125, 0.0), Vector2(0.14, 0.03),
+		Vector2(0.14, 1.02), Vector2(0.132, 1.09), Vector2(0.108, 1.15), Vector2(0.07, 1.19),
+		Vector2(0.045, 1.205), Vector2(0.045, 1.25), Vector2(0.0, 1.25),
+	]), 14, false, "garrafa_gas"), Vector3.ZERO, m, Vector3.ZERO, Vector3.ONE, "garrafa")
+	G3D.colisor(g, Vector3(0.26, 1.25, 0.26), Vector3(0, 0.625, 0))
+	# capacete de proteção da válvula + faixa de identificação no ombro
+	G3D.peca(g, MeshKit.torno(PackedVector2Array([
+		Vector2(0.062, 0.0), Vector2(0.062, 0.10), Vector2(0.05, 0.135), Vector2(0.0, 0.145),
+	]), 10, true, "capacete_gas"), Vector3(0, 1.23, 0), Mats.get_mat("metal_rust"), Vector3.ZERO, Vector3.ONE, "capacete")
+	Detail._cil(g, 0.143, 0.07, Vector3(0, 0.93, 0), Mats.get_mat("paint_yellow"), Vector3.ZERO, 14)
+	# cinta que prende a garrafa
+	Detail._cil(g, 0.146, 0.025, Vector3(0, 0.62, 0), Mats.get_mat("metal"), Vector3.ZERO, 14)
 
 
 # ================================================================ ENGENHARIA
@@ -417,7 +442,7 @@ static func _radio(root: Node3D) -> void:
 			Mats.get_mat("panel_green"), true, Vector3.ZERO, "rack%d" % i)
 		for k in 4:
 			G3D.box(root, Vector3(0.5, 0.12, 0.03), Vector3(-35.4, y + 0.35 + float(k) * 0.42, -5.72 + float(i) * 1.6),
-				Mats.emissive(Color(0.35, 0.9, 0.65) if (i + k) % 3 else Color(0.95, 0.6, 0.2), 0.7),
+				Mats.emissive_c(Color(0.35, 0.9, 0.65) if (i + k) % 3 else Color(0.95, 0.6, 0.2), 0.7),
 				false, Vector3.ZERO, "led")
 	Detail.cable_tray(root, Vector3(-36.0, y + 2.9, -8.0), Vector3(-20.0, y + 2.9, -8.0), 1301, 7)
 	Detail.pipe_run(root, Vector3(-37.0, y + 3.1, 8.0), Vector3(-20.0, y + 3.1, 8.0), 2, 0.07, false, 1303)

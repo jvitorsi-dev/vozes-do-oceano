@@ -41,7 +41,7 @@ const SHOTS := [
 	{"pos": Vector3(46, 78.0, 46.0), "look": Vector3(0, 62.0, 0.0), "nome": "exterior"},
 	{"pos": Vector3(-30, 62.0, 120.0), "look": Vector3(0, 4.0, 420.0), "nome": "oceano"},
 	{"pos": Vector3(0, 78.6, 6.0), "look": Vector3(0, 77.4, 19.4), "nome": "janela", "res": 6},
-	{"pos": Vector3(0, 64.6, -14.0), "look": Vector3(2, 64.2, -30.0), "nome": "comando", "res": 0},
+	{"pos": Vector3(-11.0, 65.9, -19.6), "look": Vector3(5, 64.7, -31.0), "nome": "comando", "res": 0},
 	{"pos": Vector3(14, 40.8, -6.0), "look": Vector3(-2, 41.4, -14.0), "nome": "manifesto", "res": 4, "fig": Vector3(2, 40.0, -12.0)},
 	{"pos": Vector3(0, 64.4, 21.0), "look": Vector3(0, 64.6, 25.0), "nome": "sino", "res": 3},
 	{"pos": Vector3(-4, 42.4, 22.0), "look": Vector3(0, 42.0, 39.4), "nome": "refeitorio_luz", "res": 2},
@@ -498,20 +498,27 @@ func _luz_de_inspecao() -> void:
 		return
 	_inspecao_feita = true
 	LampGrid.power_on()
-	var e := get_viewport().world_3d.environment
+	# o ambiente do jogo mora num nó WorldEnvironment (world_3d.environment é
+	# outro campo e fica vazio: por isso a luz de inspeção antiga não pegava)
+	var e: Environment = null
+	for n in get_tree().root.find_children("*", "WorldEnvironment", true, false):
+		e = (n as WorldEnvironment).environment
+	if e == null:
+		e = get_viewport().world_3d.environment
 	if e != null:
-		e.ambient_light_energy = 2.2
+		e.ambient_light_energy = 1.5
 		e.ambient_light_color = Color(0.42, 0.50, 0.66)
-	# uma luz de mão, como se o fotógrafo levasse um refletor: sem ela, sala
-	# escura fotografada de longe vira mancha preta
-	var refletor := OmniLight3D.new()
+		e.volumetric_fog_enabled = false
+	# farol preso à câmera, como o refletor de um fotógrafo. É direcional de
+	# propósito: no renderizador de compatibilidade cada malha aceita poucas
+	# luzes pontuais, e as paredes grandes descartavam o refletor antigo.
+	var refletor := DirectionalLight3D.new()
 	refletor.name = "LuzInspecao"
-	refletor.light_color = Color(0.86, 0.90, 1.0)
-	refletor.light_energy = 17.0
-	refletor.omni_range = 30.0
+	refletor.light_color = Color(0.90, 0.93, 1.0)
+	refletor.light_energy = 0.85
 	refletor.shadow_enabled = false
 	menu_cam.add_child(refletor)
-	refletor.position = Vector3(0, 0.6, 0.4)
+	refletor.rotation = Vector3(-0.12, 0.25, 0)
 	var conta := 0
 	for n in get_tree().root.find_children("*", "Light3D", true, false):
 		var lz := n as Light3D

@@ -21,20 +21,37 @@ extends RefCounted
 ## Se a peça não se encaixa, ela fica exatamente como estava.
 
 const META_NO_BATCH := "no_batch"
-
-static var _dummy_unused := 0
+## Galho que precisa guardar as próprias peças (sala registrada como objeto
+## móvel, grupo que aparece/some inteiro): é aglutinado à parte, nunca
+## absorvido pelo galho de cima.
+const META_PROPRIO := "lote_proprio"
+## Malha compartilhada do MeshKit: várias peças apontam para o MESMO recurso,
+## então podem dividir um MultiMesh sem malha unitária.
+const META_COMPARTILHADA := "compartilhada"
+## Caixa chanfrada do MeshKit (guarda as próprias medidas).
+const META_CAIXA := "caixa_dim"
+## Altura de um convés: nunca misturar conveses no mesmo lote.
+const ALTURA_CONVES := 12.0
 
 
 ## Funde os descendentes decorativos de `galho`. Devolve quantas peças foram
 ## absorvidas por MultiMesh (ou seja, quantas chamadas de desenho a menos).
-static func aglutinar(galho: Node3D, minimo := 5) -> int:
+##
+## * a chave do lote é (tipo de malha, material, sombra, célula do espaço):
+##   as dimensões vão na transformação de cada instância, então caixas de
+##   tamanhos diferentes dividem o mesmo lote;
+## * `celula` (metros) reparte os lotes pelo espaço, para o recorte de câmera
+##   poder descartar o que está em outra ala ou outro convés;
+## * `conservador` deixa de fora tudo o que pode mudar durante o jogo
+##   (emissivos, transparentes, shaders) — usado na estrutura da estação.
+static func aglutinar(galho: Node3D, minimo := 3, celula := 16.0, conservador := false) -> int:
 	var candidatos: Array[MeshInstance3D] = []
-	_coletar(galho, candidatos)
+	_coletar(galho, candidatos, conservador)
 	if candidatos.size() < minimo:
 		return 0
 	var lotes := {}
 	for mi: MeshInstance3D in candidatos:
-		var chave := _chave(mi)
+		var chave := _chave(mi, celula)
 		if chave == "":
 			continue
 		if not lotes.has(chave):
@@ -50,121 +67,157 @@ static func aglutinar(galho: Node3D, minimo := 5) -> int:
 	return absorvidas
 
 
-static func _coletar(no: Node, saida: Array[MeshInstance3D]) -> void:
+static func _coletar(no: Node, saida: Array[MeshInstance3D], conservador: bool) -> void:
 	for c in no.get_children():
-		if c is Node3D and c.get_script() != null:
+		if not (c is Node3D):
+			continue
+		var n3 := c as Node3D
+		if n3.get_script() != null:
 			continue  # galho com comportamento: intocável
+		if n3.has_meta(META_NO_BATCH) or n3.has_meta(META_PROPRIO) or not n3.visible:
+			continue
+		if c is CollisionObject3D or c is Light3D or c is GPUParticles3D \
+				or c is MultiMeshInstance3D or c is Decal or c is Label3D:
+			continue  # corpo físico (pode se mover), luz, partícula: fora
 		if c is MeshInstance3D:
 			var mi := c as MeshInstance3D
-			if mi.get_child_count() == 0 and _serve(mi):
+			if mi.get_child_count() == 0 and _serve(mi, conservador):
 				saida.append(mi)
-		elif c is Node3D and not (c is Light3D) and not (c is GPUParticles3D):
-			if c.has_meta(META_NO_BATCH):
-				continue
-			_coletar(c, saida)
+		else:
+			_coletar(c, saida, conservador)
 
 
-static func _serve(mi: MeshInstance3D) -> bool:
-	if mi.has_meta(META_NO_BATCH) or not mi.visible:
-		return false
+static func _serve(mi: MeshInstance3D, conservador: bool) -> bool:
 	if mi.material_override == null or mi.mesh == null:
 		return false
 	if mi.layers != 1:
 		return false
+	if conservador:
+		var bm := mi.material_override as BaseMaterial3D
+		if bm == null:
+			return false  # shader próprio (telas, oceano): pode ser trocado em jogo
+		if bm.emission_enabled or bm.transparency != BaseMaterial3D.TRANSPARENCY_DISABLED:
+			return false  # lâmpadas e LEDs mudam de estado; vidro precisa de ordenação
 	return _descricao(mi.mesh) != ""
 
 
-## Assinatura de geometria: só peças idênticas podem compartilhar um lote.
-static func _chave(mi: MeshInstance3D) -> String:
+## Assinatura do lote: tipo de malha + material + sombra + célula do espaço.
+static func _chave(mi: MeshInstance3D, celula: float) -> String:
 	var d := _descricao(mi.mesh)
 	if d == "":
 		return ""
-	return "%s|%d|%d" % [d, mi.material_override.get_instance_id(), mi.cast_shadow]
+	var p := mi.global_position
+	var cel := maxf(celula, 1.0)
+	return "%s|%d|%d|%d,%d,%d" % [d, mi.material_override.get_instance_id(), mi.cast_shadow,
+			int(floor(p.x / cel)), int(floor(p.y / ALTURA_CONVES)), int(floor(p.z / cel))]
 
 
+## Tipo de malha. As dimensões NÃO entram: viram escala da instância.
 static func _descricao(mesh: Mesh) -> String:
+	if mesh.has_meta(META_CAIXA):
+		return "boxc"
+	if mesh.has_meta(META_COMPARTILHADA):
+		return "res:%d" % mesh.get_instance_id()
 	if mesh is BoxMesh:
-		var b := mesh as BoxMesh
-		return "box:%.3f:%.3f:%.3f" % [b.size.x, b.size.y, b.size.z]
+		return "box"
 	if mesh is CylinderMesh:
 		var c := mesh as CylinderMesh
-		if absf(c.top_radius - c.bottom_radius) > 0.0001:
+		if absf(c.top_radius - c.bottom_radius) > 0.0001 or not c.cap_top or not c.cap_bottom:
 			return ""  # cone: fica como está
-		return "cyl:%.3f:%.3f:%d" % [c.top_radius, c.height, c.radial_segments]
+		return "cyl:%d" % c.radial_segments
 	if mesh is SphereMesh:
 		var s2 := mesh as SphereMesh
-		if absf(s2.radius * 2.0 - s2.height) > 0.001:
+		if absf(s2.radius * 2.0 - s2.height) > 0.001 or s2.is_hemisphere:
 			return ""
-		return "sph:%.3f:%d" % [s2.radius, s2.radial_segments]
+		return "sph:%d" % s2.radial_segments
 	if mesh is PlaneMesh:
 		var p2 := mesh as PlaneMesh
-		return "plane:%.3f:%.3f:%d" % [p2.size.x, p2.size.y, p2.subdivide_width]
+		if p2.orientation != PlaneMesh.FACE_Y or p2.center_offset != Vector3.ZERO:
+			return ""
+		return "plane:%d" % p2.subdivide_width
 	if mesh is PrismMesh:
 		var pr := mesh as PrismMesh
-		return "prism:%.3f:%.3f:%.3f" % [pr.size.x, pr.size.y, pr.size.z]
+		return "prism:%.2f" % pr.left_to_right
 	return ""
 
 
-## Malha unitária equivalente (raio/escala 1) — as dimensões vão na transformação.
-static func _unitaria(desc: String) -> Mesh:
+static var _unitarias: Dictionary = {}
+
+## Malha unitária equivalente (lado/diâmetro 1) — as dimensões vão na transformação.
+static func _unitaria(desc: String, original: Mesh) -> Mesh:
+	if desc.begins_with("res:"):
+		return original
+	if _unitarias.has(desc):
+		return _unitarias[desc]
 	var partes := desc.split(":")
 	var tipo := partes[0]
-	if tipo == "box":
+	var m: Mesh = null
+	if tipo == "boxc":
+		m = MeshKit.caixa(Vector3.ONE, 0.035)
+	elif tipo == "box":
 		var b := BoxMesh.new()
 		b.size = Vector3(1, 1, 1)
-		return b
-	if tipo == "cyl":
+		m = b
+	elif tipo == "cyl":
 		var c := CylinderMesh.new()
 		c.top_radius = 0.5
 		c.bottom_radius = 0.5
 		c.height = 1.0
-		c.radial_segments = int(partes[3])
+		c.radial_segments = int(partes[1])
 		c.rings = 1
-		return c
-	if tipo == "sph":
+		m = c
+	elif tipo == "sph":
 		var s := SphereMesh.new()
 		s.radius = 0.5
 		s.height = 1.0
-		s.radial_segments = int(partes[2])
-		return s
-	if tipo == "plane":
+		s.radial_segments = int(partes[1])
+		s.rings = maxi(4, int(partes[1]) / 2)
+		m = s
+	elif tipo == "plane":
 		var p := PlaneMesh.new()
 		p.size = Vector2(1, 1)
-		p.subdivide_width = int(partes[3])
-		p.subdivide_depth = int(partes[3])
-		return p
-	if tipo == "prism":
+		p.subdivide_width = int(partes[1])
+		p.subdivide_depth = int(partes[1])
+		m = p
+	elif tipo == "prism":
 		var pr := PrismMesh.new()
 		pr.size = Vector3(1, 1, 1)
-		return pr
-	return null
+		pr.left_to_right = float(partes[1])
+		m = pr
+	_unitarias[desc] = m
+	return m
 
 
-## Escala que leva a malha unitária ao tamanho original.
-static func _escala(desc: String) -> Vector3:
-	var partes := desc.split(":")
-	var tipo := partes[0]
-	if tipo.begins_with("box") or tipo.begins_with("prism"):
-		return Vector3(float(partes[1]), float(partes[2]), float(partes[3]))
-	if tipo == "cyl":
-		var r := float(partes[1])
-		var h := float(partes[2])
-		return Vector3(r * 2.0, h, r * 2.0)
-	if tipo == "sph":
-		var rs := float(partes[1])
-		return Vector3(rs * 2.0, rs * 2.0, rs * 2.0)
-	if tipo == "plane":
-		return Vector3(float(partes[1]), 1.0, float(partes[2]))
+## Escala que leva a malha unitária ao tamanho da peça original.
+static func _escala(mesh: Mesh) -> Vector3:
+	if mesh.has_meta(META_CAIXA):
+		var dim: Vector3 = mesh.get_meta(META_CAIXA)
+		return dim
+	if mesh.has_meta(META_COMPARTILHADA):
+		return Vector3.ONE
+	if mesh is BoxMesh:
+		return (mesh as BoxMesh).size
+	if mesh is PrismMesh:
+		return (mesh as PrismMesh).size
+	if mesh is CylinderMesh:
+		var c := mesh as CylinderMesh
+		return Vector3(c.top_radius * 2.0, c.height, c.top_radius * 2.0)
+	if mesh is SphereMesh:
+		var r := (mesh as SphereMesh).radius * 2.0
+		return Vector3(r, r, r)
+	if mesh is PlaneMesh:
+		var p := mesh as PlaneMesh
+		return Vector3(p.size.x, 1.0, p.size.y)
 	return Vector3.ONE
 
 
 static func _fundir(destino: Node3D, base: Transform3D, chave: String, lista: Array) -> int:
 	var desc := chave.split("|")[0]
-	var base_mesh := _unitaria(desc)
+	var primeiro: MeshInstance3D = lista[0]
+	var base_mesh := _unitaria(desc, primeiro.mesh)
 	if base_mesh == null:
 		return 0
-	var esc := _escala(desc)
-	var primeiro: MeshInstance3D = lista[0]
+	var caixa_unit := base_mesh.get_aabb()
 	var mm := MultiMesh.new()
 	mm.transform_format = MultiMesh.TRANSFORM_3D
 	mm.mesh = base_mesh
@@ -174,24 +227,19 @@ static func _fundir(destino: Node3D, base: Transform3D, chave: String, lista: Ar
 	var i := 0
 	for mi_v: Variant in lista:
 		var mi: MeshInstance3D = mi_v
-		var t := mi.global_transform
-		var tr := inv * t
-		var b := tr.basis
-		b = b.scaled(esc)
-		tr = Transform3D(b, tr.origin)
+		var tr := inv * mi.global_transform
+		tr = Transform3D(tr.basis * Basis.from_scale(_escala(mi.mesh)), tr.origin)
 		mm.set_instance_transform(i, tr)
-		var centro := inv * mi.global_position
-		var raio := esc.length() * 0.5
-		var cx := AABB(centro - Vector3.ONE * raio, Vector3.ONE * raio * 2.0)
+		var cx := tr * caixa_unit
 		caixa = cx if i == 0 else caixa.merge(cx)
 		i += 1
 	var mmi := MultiMeshInstance3D.new()
-	mmi.name = "Lote_" + desc
+	mmi.name = "Lote_" + desc.replace(":", "_")
 	mmi.multimesh = mm
 	mmi.material_override = primeiro.material_override
 	mmi.cast_shadow = primeiro.cast_shadow
 	mmi.gi_mode = primeiro.gi_mode
-	mmi.custom_aabb = caixa
+	mmi.custom_aabb = caixa.grow(0.05)
 	destino.add_child(mmi)
 	for mi_v2: Variant in lista:
 		var m2: MeshInstance3D = mi_v2

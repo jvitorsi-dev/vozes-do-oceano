@@ -54,10 +54,16 @@ static func build(root: Node3D) -> void:
 	# tem script, colisor ou mudança de estado durante o jogo)
 	var vest := root.get_node_or_null("Vestimenta")
 	if vest != null:
-		for g in vest.get_children():
-			if g is Node3D:
-				Batcher.aglutinar(g as Node3D, 4)
-		Batcher.aglutinar(vest as Node3D, 6)
+		vest.set_meta(Batcher.META_PROPRIO, true)
+		Batcher.aglutinar(vest as Node3D, 3)
+	# a estrutura (nervuras de parede, corpos de luminária, móveis fixos) também
+	# é aglutinada, em modo conservador: nada emissivo, transparente, com
+	# script ou corpo físico é tocado. Salas e grupos que somem/aparecem ou
+	# trocam de lugar guardam os próprios lotes.
+	for n in root.find_children("*", "Node3D", true, false):
+		if n != vest and n.has_meta(Batcher.META_PROPRIO):
+			Batcher.aglutinar(n as Node3D, 3, 16.0, true)
+	Batcher.aglutinar(root, 3, 16.0, true)
 
 
 # ================================================================ UTILIDADES
@@ -237,10 +243,12 @@ static func _build_deck1(root: Node3D) -> void:
 	G3D.sign(root, "JANELA SUL — NAO OLHAR APOS O TERCEIRO SINO", Vector3(0, D1 + 3.4, 39.6), PI, 40, Color(0.85, 0.55, 0.35))
 	var ruined := Node3D.new()
 	ruined.name = "Refeitorio_Ruina"
+	ruined.set_meta(Batcher.META_PROPRIO, true)
 	root.add_child(ruined)
 	var intact := Node3D.new()
 	intact.name = "Refeitorio_Intacto"
 	intact.visible = false
+	intact.set_meta(Batcher.META_PROPRIO, true)
 	root.add_child(intact)
 	StationKit.table_chairs(ruined, Vector3(-6.0, D1, 26.0))
 	StationKit.table_chairs(ruined, Vector3(6.0, D1, 34.0), PI, 3)
@@ -261,6 +269,7 @@ static func _build_deck1(root: Node3D) -> void:
 	var ext := Node3D.new()
 	ext.name = "Servico_Extensao"
 	ext.visible = false
+	ext.set_meta(Batcher.META_PROPRIO, true)
 	root.add_child(ext)
 	_corridor(ext, "ServicoExt", true, 30.0, 42.0, 15.0, 3.0, D1, 3.0, "", "", [], 3)
 	var false_wall := G3D.box(root, Vector3(0.3, 3.0, 3.0), Vector3(30.0, D1 + 1.5, 15.0), Mats.get_mat("wall"), true, Vector3.ZERO, "parede_falsa")

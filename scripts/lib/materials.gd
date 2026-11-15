@@ -24,9 +24,30 @@ static var _cache: Dictionary = {}
 static func get_mat(key: String) -> StandardMaterial3D:
 	if _cache.has(key):
 		return _cache[key]
+	# variante "_local": mesmos mapas, mas o triplanar acompanha a PEÇA em vez
+	# do mundo — para o que se move (folhas de porta, monta-carga), senão a
+	# textura "escorre" pela superfície durante o movimento
+	if key.ends_with("_local"):
+		var copia := get_mat(key.trim_suffix("_local")).duplicate() as StandardMaterial3D
+		copia.uv1_world_triplanar = false
+		copia.uv2_world_triplanar = false
+		_cache[key] = copia
+		return copia
 	var m := StandardMaterial3D.new()
 	_build(key, m)
 	_cache[key] = m
+	return m
+
+
+## Emissivo COMPARTILHADO: para decoração que nunca muda de estado (mostradores,
+## LEDs de enfeite). Um material por cor/energia — assim as peças se aglutinam.
+## Quem precisa mudar a cor em jogo (porta, LED de estado) usa `emissive()`.
+static func emissive_c(color: Color, energy: float = 2.0) -> StandardMaterial3D:
+	var k := "emis:%s:%.2f" % [color.to_html(false), energy]
+	if _cache.has(k):
+		return _cache[k]
+	var m := emissive(color, energy)
+	_cache[k] = m
 	return m
 
 
@@ -60,6 +81,19 @@ static func _noise(seed_v: int, freq: float, octaves: int = 4, gain := 0.5) -> F
 	n.fractal_octaves = octaves
 	n.fractal_gain = gain
 	return n
+
+
+## Ruído ladrilhável: mistura quatro amostras deslocadas de um período, de modo
+## que a borda direita continua na esquerda (e a de baixo na de cima). Sem isto
+## cada repetição da textura mostrava um degrau de mancha na emenda.
+static func _nt(n: FastNoiseLite, x: float, y: float, per: float) -> float:
+	var fx := x / per
+	var fy := y / per
+	var a := n.get_noise_2d(x, y)
+	var b := n.get_noise_2d(x - per, y)
+	var c := n.get_noise_2d(x, y - per)
+	var d := n.get_noise_2d(x - per, y - per)
+	return lerpf(lerpf(a, b, fx), lerpf(c, d, fx), fy)
 
 
 # ================================================================ CAMPOS DE ALTURA
@@ -135,41 +169,31 @@ static func _h_brushed(size: int, seed_v: int, dents := true) -> PackedFloat32Ar
 ## dos remaches, metal limpo aparecendo onde a casca caiu.
 static func _h_rust(size: int, seed_v: int, amount: float) -> PackedFloat32Array:
 	var base := _h_brushed(size, seed_v + 3, true)
-	var patch := _noise(seed_v, 0.035, 4)
-	var vein := _noise(seed_v + 21, 0.13, 3)
-	for y in size:
-		for x in size:
-			var i := y * size + x
-			var px := float(x)
-			var py := float(y)
-			var m: float = patch.get_noise_2d(px, py) * 0.5 + 0.5
-			m += vein.get_noise_2d(px, py) * 0.18
-			# escorrimento: colunas que "descem" a partir de pontos altos
-			var col: float = vein.get_noise_2d(px * 2.2, py * 0.05) * 0.5 + 0.5
-			m += col * 0.14
-			m = clampf(m, 0.0, 1.0)
-			var t: float = clampf((m - (1.0 - amount)) / maxf(amount, 0.001), 0.0, 1.0)
-			var v: float = base[i] - 0.10 * t + 0.13 * pow(t, 2.0)
-			base[i] = clampf(v, 0.0, 1.0)
+	var mask := _rust_mask(size, seed_v, amount)
+	for i in size * size:
+		var t := mask[i]
+		base[i] = clampf(base[i] - 0.10 * t + 0.13 * t * t, 0.0, 1.0)
 	return base
 
 
-## Máscara da ferrugem (0..1) equivalente à do campo de altura acima.
+## Máscara da ferrugem (0..1), contínua nas bordas da textura.
 static func _rust_mask(size: int, seed_v: int, amount: float) -> PackedFloat32Array:
 	var out := PackedFloat32Array()
 	out.resize(size * size)
 	var patch := _noise(seed_v, 0.035, 4)
 	var vein := _noise(seed_v + 21, 0.13, 3)
+	var per := float(size)
 	for y in size:
 		for x in size:
-			var i := y * size + x
 			var px := float(x)
 			var py := float(y)
-			var m: float = patch.get_noise_2d(px, py) * 0.5 + 0.5
-			m += vein.get_noise_2d(px, py) * 0.18
-			var col: float = vein.get_noise_2d(px * 2.2, py * 0.05) * 0.5 + 0.5
-			m += col * 0.14
-			out[i] = clampf((clampf(m, 0.0, 1.0) - (1.0 - amount)) / maxf(amount, 0.001), 0.0, 1.0)
+			var m: float = _nt(patch, px, py, per) * 0.5 + 0.5
+			m += _nt(vein, px, py, per) * 0.18
+			# escorrimento: colunas que "descem" a partir de pontos altos
+			var col: float = vein.get_noise_2d(px * 2.2, 0.0) * (1.0 - px / per) \
+					+ vein.get_noise_2d((px - per) * 2.2, 0.0) * (px / per)
+			m += (col * 0.5 + 0.5) * 0.14
+			out[y * size + x] = clampf((clampf(m, 0.0, 1.0) - (1.0 - amount)) / maxf(amount, 0.001), 0.0, 1.0)
 	return out
 
 
@@ -261,6 +285,7 @@ static func _normal_img(h: PackedFloat32Array, size: int, strength := 1.6) -> Im
 			var dy := (h[yb * size + x] - h[yt * size + x]) * strength
 			var n := Vector3(-dx, -dy, 1.0).normalized()
 			img.set_pixel(x, y, Color(n.x * 0.5 + 0.5, n.y * 0.5 + 0.5, n.z * 0.5 + 0.5))
+	img.generate_mipmaps(true)
 	return ImageTexture.create_from_image(img)
 
 
@@ -281,6 +306,7 @@ static func _orm_img(h: PackedFloat32Array, size: int, rough: float, metal: floa
 				r = clampf(r + t * 0.35, 0.0, 1.0)
 				mt = clampf(mt - t * metal * 0.75, 0.0, 1.0)
 			img.set_pixel(x, y, Color(ao, r, mt))
+	img.generate_mipmaps()
 	return ImageTexture.create_from_image(img)
 
 
@@ -295,6 +321,7 @@ static func _albedo_img(h: PackedFloat32Array, size: int, base: Color, seed_v: i
 	var stain: Color = opts.get("stain", base.darkened(0.45))
 	var rust := opts.get("rust_mask", PackedFloat32Array()) as PackedFloat32Array
 	var has_rust := rust.size() == size * size
+	var listras := bool(opts.get("listras", false))
 	var fine := _noise(seed_v + 31, 0.22, 3)
 	var blotch := _noise(seed_v + 47, 0.03, 4)
 	# onde a altura é baixa (rebaixo/junta) escurece; onde é alta, clareia
@@ -307,16 +334,16 @@ static func _albedo_img(h: PackedFloat32Array, size: int, base: Color, seed_v: i
 			c = c.lerp(stain, maxf(0.0, -zone) * seam_dark)
 			c = c.lightened(maxf(0.0, zone) * wear)
 			# variação fina de tom (desbotado/encardido)
-			c = c.lightened(fine.get_noise_2d(float(x), float(y)) * 0.06)
+			c = c.lightened(maxf(0.0, _nt(fine, float(x), float(y), float(size))) * 0.06)
 			# manchas grandes de encardido
-			var b: float = blotch.get_noise_2d(float(x), float(y)) * 0.5 + 0.5
+			var b: float = _nt(blotch, float(x), float(y), float(size)) * 0.5 + 0.5
 			c = c.lerp(stain, b * grime)
-			# sujeira acumulada na base do painel (gradiente vertical)
-			var low := float(y) / float(size)
-			c = c.lerp(stain, pow(low, 2.4) * grime * 1.3)
 			if has_rust:
 				c = c.lerp(rust_col, clampf(rust[i] * 1.15, 0.0, 1.0))
+			if listras and fmod(float(x) + float(y), 64.0) >= 32.0:
+				c = c.lerp(Color(0.035, 0.035, 0.04), 0.90 - b * 0.25)
 			img.set_pixel(x, y, c)
+	img.generate_mipmaps()
 	return ImageTexture.create_from_image(img)
 
 
@@ -354,6 +381,7 @@ static func _maps(cfg: Dictionary) -> Dictionary:
 		"wear": cfg.get("wear", 0.14),
 		"stain": cfg.get("stain", Color(0, 0, 0)),
 		"rust_mask": rust,
+		"listras": pattern == "hazard",
 	}
 	var base: Color = cfg.get("base", Color(0.4, 0.4, 0.4))
 	if !cfg.has("stain"):
@@ -375,12 +403,12 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 		"wall":
 			# chapa de aço pintada de verde-acinzentado, painéis rebitados
 			var cfg := {
-				"pattern": "panel", "size": SIZE_BIG, "step": 96, "thick": 4, "rivets": true,
+				"pattern": "panel", "size": 288, "step": 96, "thick": 4, "rivets": true,
 				"base": Color(0.365, 0.385, 0.360), "seed": 7, "rough": 0.78, "metal": 0.10,
 				"grime": 0.26, "wear": 0.10, "bump": 1.5,
 				"rust_color": Color(0.29, 0.16, 0.09),
 			}
-			_apply(m, cfg, 2.0, true)
+			_apply(m, cfg, 2.25, true)
 		"wall_dark":
 			var cfg2 := {
 				"pattern": "panel", "size": SIZE_BIG, "step": 128, "thick": 5, "rivets": true,
@@ -399,12 +427,12 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 			_apply(m, cfg3, 1.6, true)
 		"floor_grating":
 			var cfg4 := {
-				"pattern": "grating", "size": SIZE_BIG, "step": 48, "bar": 7,
+				"pattern": "grating", "size": 288, "step": 48, "bar": 7,
 				"base": Color(0.185, 0.195, 0.205), "seed": 23, "rough": 0.55, "metal": 0.62,
 				"grime": 0.30, "wear": 0.14, "bump": 2.4,
 				"stain": Color(0.05, 0.055, 0.06),
 			}
-			_apply(m, cfg4, 1.2, true)
+			_apply(m, cfg4, 1.35, true)
 		"ceiling":
 			var cfg5 := {
 				"pattern": "perf", "size": SIZE, "step": 64,
@@ -420,7 +448,7 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 				"grime": 0.16, "wear": 0.20, "bump": 1.2,
 				"stain": Color(0.14, 0.145, 0.15),
 			}
-			_apply(m, cfg6, 1.0, false)
+			_apply(m, cfg6, 1.0, true)
 		"metal_rust":
 			var cfg7 := {
 				"pattern": "rust", "rust_amount": 0.48, "size": SIZE,
@@ -429,7 +457,7 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 				"rust_color": Color(0.34, 0.16, 0.07),
 				"stain": Color(0.11, 0.08, 0.055),
 			}
-			_apply(m, cfg7, 1.4, false)
+			_apply(m, cfg7, 1.4, true)
 		"pipe":
 			var cfg8 := {
 				"pattern": "brushed", "size": SIZE, "dents": false,
@@ -437,7 +465,7 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 				"grime": 0.26, "wear": 0.14, "bump": 1.1,
 				"stain": Color(0.10, 0.10, 0.11),
 			}
-			_apply(m, cfg8, 1.0, false)
+			_apply(m, cfg8, 1.0, true)
 		"rubber":
 			var cfg9 := {
 				"pattern": "fabric", "size": SIZE,
@@ -445,7 +473,7 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 				"grime": 0.20, "wear": 0.06, "bump": 0.9,
 				"stain": Color(0.03, 0.03, 0.032),
 			}
-			_apply(m, cfg9, 0.5, false)
+			_apply(m, cfg9, 0.5, true)
 		"fabric":
 			var cfg10 := {
 				"pattern": "fabric", "size": SIZE,
@@ -453,7 +481,7 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 				"grime": 0.26, "wear": 0.16, "bump": 1.1,
 				"stain": Color(0.08, 0.085, 0.10),
 			}
-			_apply(m, cfg10, 0.6, false)
+			_apply(m, cfg10, 0.6, true)
 		"hazard":
 			var cfg11 := {
 				"pattern": "hazard", "size": SIZE,
@@ -461,14 +489,14 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 				"grime": 0.30, "wear": 0.18, "bump": 1.3,
 				"stain": Color(0.10, 0.085, 0.03),
 			}
-			_apply(m, cfg11, 2.5, false)
+			_apply(m, cfg11, 0.8, true)
 		"shelf_wood":
 			var cfg12 := {
 				"pattern": "fabric", "size": SIZE,
 				"base": Color(0.30, 0.22, 0.15), "seed": 71, "rough": 0.90, "metal": 0.0,
 				"grime": 0.30, "wear": 0.12, "bump": 0.8,
 			}
-			_apply(m, cfg12, 1.0, false)
+			_apply(m, cfg12, 1.0, true)
 		"paper":
 			var cfg13 := {
 				"pattern": "plain", "size": SIZE,
@@ -476,16 +504,16 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 				"grime": 0.30, "wear": 0.10, "bump": 0.5,
 				"stain": Color(0.45, 0.42, 0.36),
 			}
-			_apply(m, cfg13, 1.0, false)
+			_apply(m, cfg13, 1.0, true)
 		"wall_blue":
 			# cabines da tripulação: pintura azul institucional, gasta nos cantos
 			var cb := {
-				"pattern": "panel", "size": SIZE, "step": 112, "thick": 4, "rivets": false,
+				"pattern": "panel", "size": 224, "step": 112, "thick": 4, "rivets": false,
 				"base": Color(0.205, 0.250, 0.330), "seed": 83, "rough": 0.74, "metal": 0.12,
 				"grime": 0.30, "wear": 0.14, "bump": 1.4,
 				"stain": Color(0.09, 0.11, 0.15),
 			}
-			_apply(m, cb, 2.2, true)
+			_apply(m, cb, 1.925, true)
 		"wall_rust":
 			# depósito: chapa muito castigada, ferrugem velha escorrida
 			var cr := {
@@ -508,23 +536,105 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 		"floor_plate":
 			# piso de chapa estampada do hangar e da engenharia
 			var cp := {
-				"pattern": "panel", "size": SIZE, "step": 40, "thick": 5, "rivets": true,
+				"pattern": "panel", "size": 240, "step": 40, "thick": 5, "rivets": true,
 				"base": Color(0.205, 0.215, 0.225), "seed": 101, "rough": 0.46, "metal": 0.62,
 				"grime": 0.30, "wear": 0.16, "bump": 2.0,
 				"stain": Color(0.075, 0.08, 0.085),
 			}
-			_apply(m, cp, 1.4, true)
+			_apply(m, cp, 1.3125, true)
 		"panel_green":
 			# armários e consoles: verde-oliva militar
 			var cg := {
-				"pattern": "panel", "size": SIZE, "step": 96, "thick": 3, "rivets": true,
+				"pattern": "panel", "size": 288, "step": 96, "thick": 3, "rivets": true,
 				"base": Color(0.225, 0.255, 0.205), "seed": 103, "rough": 0.70, "metal": 0.18,
 				"grime": 0.28, "wear": 0.14, "bump": 1.5,
 				"stain": Color(0.10, 0.12, 0.09),
 			}
-			_apply(m, cg, 1.6, true)
+			_apply(m, cg, 1.8, true)
+		"concrete":
+			# concreto técnico: bases de máquina, soleiras, contrapiso
+			var cc := {
+				"pattern": "plain", "size": SIZE, "dents": true,
+				"base": Color(0.36, 0.355, 0.34), "seed": 107, "rough": 0.93, "metal": 0.0,
+				"grime": 0.36, "wear": 0.10, "bump": 1.6,
+				"stain": Color(0.16, 0.155, 0.14),
+			}
+			_apply(m, cc, 1.7, true)
+		"plastic_old":
+			# plástico bege de equipamento, amarelado pelo tempo
+			var cpl := {
+				"pattern": "plain", "size": SIZE, "dents": false,
+				"base": Color(0.56, 0.52, 0.40), "seed": 109, "rough": 0.55, "metal": 0.0,
+				"grime": 0.30, "wear": 0.08, "bump": 0.45,
+				"stain": Color(0.30, 0.25, 0.14),
+			}
+			_apply(m, cpl, 0.7, true)
+		"plastic_dark":
+			var cpd := {
+				"pattern": "plain", "size": SIZE, "dents": false,
+				"base": Color(0.075, 0.078, 0.082), "seed": 113, "rough": 0.50, "metal": 0.0,
+				"grime": 0.22, "wear": 0.14, "bump": 0.45,
+				"stain": Color(0.03, 0.03, 0.03),
+			}
+			_apply(m, cpd, 0.7, true)
+		"oily":
+			# aço de máquina encharcado de óleo: escuro, liso em manchas
+			var co := {
+				"pattern": "brushed", "size": SIZE, "dents": true,
+				"base": Color(0.105, 0.100, 0.092), "seed": 127, "rough": 0.26, "metal": 0.72,
+				"grime": 0.42, "wear": 0.22, "bump": 1.3,
+				"stain": Color(0.02, 0.018, 0.014),
+			}
+			_apply(m, co, 0.9, true)
+		"steel":
+			# inox escovado de cozinha/laboratório: claro, pouco encardido
+			var cs := {
+				"pattern": "brushed", "size": SIZE, "dents": false,
+				"base": Color(0.52, 0.54, 0.55), "seed": 131, "rough": 0.30, "metal": 0.92,
+				"grime": 0.14, "wear": 0.18, "bump": 0.9,
+				"stain": Color(0.24, 0.24, 0.23),
+			}
+			_apply(m, cs, 0.8, true)
+		"ceramic":
+			# cerâmica industrial miúda (bancadas molhadas, pias)
+			var cce := {
+				"pattern": "tile", "size": SIZE, "step": 32,
+				"base": Color(0.60, 0.63, 0.60), "seed": 137, "rough": 0.22, "metal": 0.0,
+				"grime": 0.36, "wear": 0.06, "bump": 1.4,
+				"stain": Color(0.30, 0.29, 0.24),
+			}
+			_apply(m, cce, 0.8, true)
+		"canvas":
+			# lona de equipamento (capas, bolsas, cintas)
+			var cl := {
+				"pattern": "fabric", "size": SIZE,
+				"base": Color(0.27, 0.285, 0.215), "seed": 139, "rough": 0.96, "metal": 0.0,
+				"grime": 0.32, "wear": 0.18, "bump": 1.2,
+				"stain": Color(0.11, 0.11, 0.08),
+			}
+			_apply(m, cl, 0.45, true)
 		"paint_red":
 			_flat_painted(m, Color(0.42, 0.10, 0.08), 77)
+		"paint_yellow":
+			_flat_painted(m, Color(0.62, 0.47, 0.08), 149, 0.08, 0.60, 0.30)
+		"paint_olive":
+			_flat_painted(m, Color(0.20, 0.235, 0.165), 151, 0.10, 0.66, 0.28)
+		"paint_grey":
+			_flat_painted(m, Color(0.34, 0.36, 0.37), 157, 0.12, 0.60, 0.26)
+		"paint_white":
+			_flat_painted(m, Color(0.66, 0.67, 0.64), 163, 0.03, 0.42, 0.30)
+		"copper":
+			_flat_painted(m, Color(0.46, 0.25, 0.14), 167, 0.85, 0.42, 0.34)
+		"glass_wire":
+			# vidro aramado de divisória: malha de arame embutida, bordas sujas
+			m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			m.albedo_texture = _tex_vidro_aramado()
+			m.roughness = 0.12
+			m.metallic = 0.0
+			m.cull_mode = BaseMaterial3D.CULL_DISABLED
+			m.uv1_triplanar = true
+			m.uv1_world_triplanar = true
+			m.uv1_scale = Vector3(1.6, 1.6, 1.6)
 		"paint_blue":
 			_flat_painted(m, Color(0.10, 0.18, 0.30), 79)
 		"plant":
@@ -591,16 +701,69 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 			m.roughness = 0.8
 
 
+static func _tex_vidro_aramado() -> ImageTexture:
+	var size := 128
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var suj := _noise(173, 0.03, 3)
+	for y in size:
+		for x in size:
+			var dx := absf(fmod(float(x) + float(y), 16.0) - 8.0)
+			var dy := absf(fmod(float(x) - float(y) + 256.0, 16.0) - 8.0)
+			var arame := 1.0 - clampf(minf(dx, dy) / 0.9, 0.0, 1.0)
+			var s2: float = clampf(_nt(suj, float(x), float(y), float(size)) * 0.5 + 0.5, 0.0, 1.0)
+			var a := 0.10 + s2 * 0.16 + arame * 0.62
+			var c := Color(0.50, 0.62, 0.64).lerp(Color(0.08, 0.09, 0.09), arame)
+			img.set_pixel(x, y, Color(c.r, c.g, c.b, clampf(a, 0.0, 1.0)))
+	img.generate_mipmaps()
+	return ImageTexture.create_from_image(img)
+
+
 ## Material "pintado" simples, mas com tinta descascada e sujeira.
-static func _flat_painted(m: StandardMaterial3D, base: Color, seed_v: int) -> void:
-	var h := _h_brushed(SIZE, seed_v, false)
+static func _flat_painted(m: StandardMaterial3D, base: Color, seed_v: int, metal := 0.05,
+		rough := 0.62, grime := 0.22) -> void:
 	var cfg := {
 		"pattern": "brushed", "size": SIZE, "dents": false,
-		"base": base, "seed": seed_v, "rough": 0.62, "metal": 0.05,
-		"grime": 0.22, "wear": 0.16, "bump": 0.9,
+		"base": base, "seed": seed_v, "rough": rough, "metal": metal,
+		"grime": grime, "wear": 0.16, "bump": 0.9,
 		"stain": base.darkened(0.5),
 	}
-	_apply(m, cfg, 1.0, false)
+	_apply(m, cfg, 1.0, true)
+
+
+## Mapa de variação em escala de metros (ladrilhável): zonas mais encardidas,
+## escorridos longos, respingos. É multiplicado sobre QUALQUER material por um
+## segundo triplanar bem maior que o da textura — quebra a repetição que
+## denunciava o ladrilho de 1–2 m em toda parede.
+static var _macro: ImageTexture = null
+
+static func _macro_tex() -> ImageTexture:
+	if _macro != null:
+		return _macro
+	var size := 256
+	var per := float(size)
+	var nuvem := _noise(911, 0.012, 4)
+	var mancha := _noise(923, 0.045, 3)
+	var risco := _noise(937, 0.09, 2)
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	for y in size:
+		for x in size:
+			var fx := float(x)
+			var fy := float(y)
+			var v: float = _nt(nuvem, fx, fy, per) * 0.5 + 0.5
+			v = smoothstep(0.25, 0.80, v)
+			var m: float = _nt(mancha, fx, fy, per) * 0.5 + 0.5
+			m = smoothstep(0.55, 0.85, m)
+			# escorridos verticais (estreitos em x, longos em y)
+			var e: float = risco.get_noise_2d(fx * 3.0, 0.0) * (1.0 - fx / per) \
+					+ risco.get_noise_2d((fx - per) * 3.0, 0.0) * (fx / per)
+			e = smoothstep(0.28, 0.6, e) * (0.5 + 0.5 * v)
+			var k := clampf(1.0 - v * 0.55 - m * 0.45 - e * 0.35, 0.08, 1.0)
+			# o escuro puxa para marrom-óleo, não para cinza
+			var c := Color(k, k * (0.94 + 0.06 * k), k * (0.86 + 0.14 * k), 0.5)
+			img.set_pixel(x, y, c)
+	img.generate_mipmaps()
+	_macro = ImageTexture.create_from_image(img)
+	return _macro
 
 
 ## Aplica os mapas gerados a um material.
@@ -626,6 +789,21 @@ static func _apply(m: StandardMaterial3D, cfg: Dictionary, world_m: float, tripl
 		m.uv1_triplanar_sharpness = 5.0
 		var d := 1.0 / maxf(world_m, 0.05)
 		m.uv1_scale = Vector3(d, d, d)
+		# variação em escala grande (não no navegador: lá cada amostra pesa)
+		if not OS.has_feature("web") and bool(cfg.get("macro", true)):
+			m.detail_enabled = true
+			m.detail_blend_mode = BaseMaterial3D.BLEND_MODE_MUL
+			m.detail_uv_layer = BaseMaterial3D.DETAIL_UV_2
+			m.detail_albedo = _macro_tex()
+			m.uv2_triplanar = true
+			m.uv2_world_triplanar = true
+			m.uv2_triplanar_sharpness = 5.0
+			# período que não é múltiplo do ladrilho: as duas repetições nunca casam
+			var dm := 1.0 / 7.3
+			m.uv2_scale = Vector3(dm, dm, dm)
+			# o detalhe mistura o relevo com "liso" na mesma proporção (alfa 0,5):
+			# dobrar a escala devolve o relevo original
+			m.normal_scale *= 2.0
 	else:
 		m.uv1_scale = Vector3(1, 1, 1)
 	m.uv1_offset = Vector3.ZERO

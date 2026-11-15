@@ -31,7 +31,7 @@ var _player_near := false
 
 
 func _build() -> void:
-	var frame_mat := Mats.get_mat("metal")
+	var frame_mat := Mats.get_mat("metal_local")
 	if along_x:
 		_panel_a = _panel(Vector3(width * 0.5, height, 0.12), "A")
 		_panel_b = _panel(Vector3(width * 0.5, height, 0.12), "B")
@@ -103,7 +103,7 @@ func _panel(size: Vector3, tag: String) -> Node3D:
 	var p := Node3D.new()
 	p.name = "Painel" + tag
 	add_child(p)
-	var m := Mats.get_mat("metal")
+	var m := Mats.get_mat("metal_local")
 	var body := MeshInstance3D.new()
 	var bm := BoxMesh.new()
 	bm.size = size
@@ -115,14 +115,14 @@ func _panel(size: Vector3, tag: String) -> Node3D:
 	var rm := BoxMesh.new()
 	rm.size = size * Vector3(1.02, 0.08, 1.3)
 	rib.mesh = rm
-	rib.material_override = Mats.get_mat("metal_rust")
+	rib.material_override = Mats.get_mat("metal_rust_local")
 	rib.position = Vector3(0, size.y * 0.1, 0)
 	p.add_child(rib)
 	var stripe := MeshInstance3D.new()
 	var sm := BoxMesh.new()
 	sm.size = size * Vector3(1.03, 0.12, 1.35)
 	stripe.mesh = sm
-	stripe.material_override = Mats.get_mat("hazard")
+	stripe.material_override = Mats.get_mat("hazard_local")
 	stripe.position = Vector3(0, -size.y * 0.35, 0)
 	p.add_child(stripe)
 	var body_col := StaticBody3D.new()
