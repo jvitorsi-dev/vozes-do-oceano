@@ -23,7 +23,7 @@
 [BOT] ✔ diário de Íris lido no mesmo terminal
 [BOT] screenshot: /home/user/bot_shots/01-02-briefing.png
 [BOT] ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 1)
-[BOT] ! preso perto de (-12.1, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT] ! preso perto de (-11.8, 40.0, -14.3), tentando desviar (tentativa 2)
 [BOT] ✔ usei bancada de manutenção — prompt: "Ler terminal"
 [BOT] ✔ usei bancada de manutenção (reabrindo) — prompt: "Ler terminal"
 [BOT] ✔ manual do reator lido
@@ -58,48 +58,100 @@
 [BOT] ✔ usei painel de chamada do monta-carga (convés 2) — prompt: "Chamar monta-carga"
 [BOT] ✔ chamada do monta-carga B: plataforma no nível 52
 [BOT] ✔ usei painel da plataforma (convés 3) — prompt: "Operar monta-carga"
-[BOT] ✔ monta-carga B → convés 3 (jogador chegou em y=63.6)
+[BOT] ✖ monta-carga B → convés 3: o jogador não foi carregado pelo monta-carga (y=55.6, esperava 63.5)
+[BOT] ✖ rota inválida: alvo (14.6, 64.0, 8.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
 [BOT] screenshot: /home/user/bot_shots/07-08-conves3.png
-[BOT] ! preso perto de (0.3, 64.0, -19.8), tentando desviar (tentativa 3)
-[BOT] ✔ usei console de vigilância — prompt: "Usar console de vigilância"
-[BOT] ✔ CCTV com 12 canais registrados
-[BOT] ! preso perto de (4.9, 64.0, -19.7), tentando desviar (tentativa 4)
-[BOT] ✔ usei terminal pessoal de Íris — prompt: "Ler terminal"
-[BOT] ✔ usei cofre (sala segura) — prompt: "SALA SEGURA — CÓDIGO"
-[BOT] ✔ código do teclado confere com a pista (cofre da sala segura)
-[BOT] ✔ cartão de engenharia obtido (código 1104 = 11 de abril)
+[BOT] ✖ rota inválida: alvo (16.0, 64.0, 2.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.0, 64.0, -14.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (8.0, 64.0, -16.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (1.0, 64.0, -16.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (0.0, 64.0, -22.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (9.4, 64.0, -18.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (9.9, 64.0, -18.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (8.9, 64.0, -18.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (9.4, 64.0, -18.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (9.4, 64.0, -19.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ nada no raio de interação em console de vigilância ((9.0, 64.0, -20.0)) — objeto: sim
+[BOT] ✖ o terminal de câmeras não abriu (painel: <null>)
+[BOT] ✖ rota inválida: alvo (-3.1, 64.0, -18.7) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (-2.6, 64.0, -18.7) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (-3.6, 64.0, -18.7) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (-3.1, 64.0, -18.2) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (-3.1, 64.0, -19.2) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ nada no raio de interação em terminal pessoal de Íris ((-4.0, 64.0, -20.0)) — objeto: sim
+[BOT] ✖ rota inválida: alvo (0.7, 64.0, -19.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (1.2, 64.0, -19.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (0.2, 64.0, -19.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (0.7, 64.0, -18.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (0.7, 64.0, -19.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ nada no raio de interação em cofre (sala segura) ((0.0, 64.0, -20.5)) — objeto: sim
+[BOT] ✖ o teclado numérico não abriu (cofre da sala segura)
+[BOT] ✖ o cofre não abriu com 1104 — pista x código quebrada
 [BOT] screenshot: /home/user/bot_shots/08-09-comando.png
-[BOT] ✔ usei gravador da câmara do sino — prompt: "Reproduzir fita"
-[BOT] ✔ fita do silêncio ouvida
+[BOT] ✖ rota inválida: alvo (0.0, 64.0, -16.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (14.0, 64.0, -16.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.0, 64.0, -10.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.0, 64.0, 4.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.0, 64.0, 14.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (8.0, 64.0, 16.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (0.5, 64.0, 16.2) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (0.5, 64.0, 18.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (0.5, 64.0, 22.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (0.5, 64.0, 25.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (6.7, 64.0, 28.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (7.2, 64.0, 28.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (6.2, 64.0, 28.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (6.7, 64.0, 29.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (6.7, 64.0, 28.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ nada no raio de interação em gravador da câmara do sino ((6.0, 64.0, 30.0)) — objeto: sim
+[BOT] ✖ a fita do sino não foi lida
 [BOT] screenshot: /home/user/bot_shots/09-10-sino.png
+[BOT] ✖ rota inválida: alvo (0.5, 64.0, 22.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (0.5, 64.0, 18.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (0.5, 64.0, 16.2) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (14.0, 64.0, 16.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.0, 64.0, 8.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.0, 64.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (22.0, 64.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (29.0, 64.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
 [BOT] ✔ porta selada do módulo: aberta por conta própria (anomalia confirmada)
 [BOT] screenshot: /home/user/bot_shots/10-11-corredor-obs.png
-[BOT] ✔ usei painel de chamada do monta-carga (observação) — prompt: "Chamar monta-carga"
+[BOT] ✖ rota inválida: alvo (15.9, 64.0, 9.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.4, 64.0, 9.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (15.4, 64.0, 9.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (15.9, 64.0, 9.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (15.9, 64.0, 8.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ nada no raio de interação em painel de chamada do monta-carga (observação) ((14.8, 52.6, 8.0)) — objeto: sim
 [BOT] ✔ chamada do monta-carga C: plataforma no nível 64
-[BOT] ✔ usei painel da plataforma (módulo) — prompt: "Operar monta-carga"
-[BOT] ! monta-carga C → módulo de observação: o monta-carga subiu sem o jogador — tentando embarcar de novo
-[BOT] ✖ monta-carga C → módulo de observação: o jogador não foi carregado pelo monta-carga (y=64.0, esperava 75.5)
-[BOT] ✖ rota inválida: alvo (31.5, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (34.1, 64.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.5, 64.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (17.0, 64.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.0, 64.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.5, 64.0, 8.9) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.5, 64.0, 7.9) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ nada no raio de interação em painel da plataforma (módulo) ((16.4, 64.5, 8.0)) — objeto: sim
+[BOT] ✖ monta-carga C → módulo de observação: o jogador não foi carregado pelo monta-carga (y=55.6, esperava 75.5)
+[BOT] ✖ rota inválida: alvo (31.5, 76.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
 [BOT] screenshot: /home/user/bot_shots/11-12-antessala.png
-[BOT] ✖ rota inválida: alvo (24.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (16.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (8.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (24.0, 76.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (16.0, 76.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (8.0, 76.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
 [BOT] screenshot: /home/user/bot_shots/12-13-modulo.png
-[BOT] ✖ rota inválida: alvo (0.0, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (-9.5, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (-9.0, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (-10.0, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (-9.5, 76.0, 8.2) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (-9.5, 76.0, 7.2) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (0.0, 76.0, 8.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (-9.5, 76.0, 8.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (-9.0, 76.0, 8.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (-10.0, 76.0, 8.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (-9.5, 76.0, 8.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (-9.5, 76.0, 7.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
 [BOT] ✖ nada no raio de interação em console do Protocolo Espelho ((-11.0, 76.0, 8.0)) — objeto: sim
-[BOT] ✖ rota inválida: alvo (0.0, 76.0, 15.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (0.0, 76.0, 15.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
 [BOT] screenshot: /home/user/bot_shots/13-14-janela-do-modulo.png
-[BOT] ✖ rota inválida: alvo (9.0, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (12.5, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (13.0, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (12.0, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (12.5, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT] ✖ rota inválida: alvo (12.5, 76.0, 7.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT] ✖ rota inválida: alvo (9.0, 76.0, 8.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (12.5, 76.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (13.0, 76.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (12.0, 76.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (12.5, 76.0, 8.9) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT] ✖ rota inválida: alvo (12.5, 76.0, 7.9) está em outro convés (jogador em (16.6, 55.6, 9.6))
 [BOT] ✖ nada no raio de interação em console ECHO ((11.0, 76.0, 8.0)) — objeto: sim
 [BOT] ✖ o console ECHO não abriu o painel de decisão final (painel: <null>)
 [BOT] ✖ nenhum final foi registrado
@@ -107,33 +159,96 @@
 [BOT] screenshot: /home/user/bot_shots/14-15-final.png
 [BOT] ✔ barramentos de áudio íntegros
 [BOT] ===== RELATÓRIO =====
-[BOT] verificações ok: 63
-[BOT] avisos: 5
+[BOT] verificações ok: 52
+[BOT] avisos: 2
 [BOT]   ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 1)
-[BOT]   ! preso perto de (-12.1, 40.0, -14.3), tentando desviar (tentativa 2)
-[BOT]   ! preso perto de (0.3, 64.0, -19.8), tentando desviar (tentativa 3)
-[BOT]   ! preso perto de (4.9, 64.0, -19.7), tentando desviar (tentativa 4)
-[BOT]   ! monta-carga C → módulo de observação: o monta-carga subiu sem o jogador — tentando embarcar de novo
-[BOT] falhas: 23
-[BOT]   ✖ monta-carga C → módulo de observação: o jogador não foi carregado pelo monta-carga (y=64.0, esperava 75.5)
-[BOT]   ✖ rota inválida: alvo (31.5, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (24.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (16.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (8.0, 76.0, 0.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (0.0, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (-9.5, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (-9.0, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (-10.0, 76.0, 7.7) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (-9.5, 76.0, 8.2) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (-9.5, 76.0, 7.2) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ! preso perto de (-11.8, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT] falhas: 89
+[BOT]   ✖ monta-carga B → convés 3: o jogador não foi carregado pelo monta-carga (y=55.6, esperava 63.5)
+[BOT]   ✖ rota inválida: alvo (14.6, 64.0, 8.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.0, 64.0, 2.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.0, 64.0, -14.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (8.0, 64.0, -16.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (1.0, 64.0, -16.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.0, 64.0, -22.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (9.4, 64.0, -18.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (9.9, 64.0, -18.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (8.9, 64.0, -18.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (9.4, 64.0, -18.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (9.4, 64.0, -19.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ nada no raio de interação em console de vigilância ((9.0, 64.0, -20.0)) — objeto: sim
+[BOT]   ✖ o terminal de câmeras não abriu (painel: <null>)
+[BOT]   ✖ rota inválida: alvo (-3.1, 64.0, -18.7) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (-2.6, 64.0, -18.7) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (-3.6, 64.0, -18.7) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (-3.1, 64.0, -18.2) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (-3.1, 64.0, -19.2) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ nada no raio de interação em terminal pessoal de Íris ((-4.0, 64.0, -20.0)) — objeto: sim
+[BOT]   ✖ rota inválida: alvo (0.7, 64.0, -19.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (1.2, 64.0, -19.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.2, 64.0, -19.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.7, 64.0, -18.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.7, 64.0, -19.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ nada no raio de interação em cofre (sala segura) ((0.0, 64.0, -20.5)) — objeto: sim
+[BOT]   ✖ o teclado numérico não abriu (cofre da sala segura)
+[BOT]   ✖ o cofre não abriu com 1104 — pista x código quebrada
+[BOT]   ✖ rota inválida: alvo (0.0, 64.0, -16.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (14.0, 64.0, -16.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.0, 64.0, -10.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.0, 64.0, 4.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.0, 64.0, 14.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (8.0, 64.0, 16.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.5, 64.0, 16.2) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.5, 64.0, 18.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.5, 64.0, 22.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.5, 64.0, 25.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (6.7, 64.0, 28.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (7.2, 64.0, 28.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (6.2, 64.0, 28.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (6.7, 64.0, 29.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (6.7, 64.0, 28.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ nada no raio de interação em gravador da câmara do sino ((6.0, 64.0, 30.0)) — objeto: sim
+[BOT]   ✖ a fita do sino não foi lida
+[BOT]   ✖ rota inválida: alvo (0.5, 64.0, 22.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.5, 64.0, 18.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.5, 64.0, 16.2) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (14.0, 64.0, 16.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.0, 64.0, 8.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.0, 64.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (22.0, 64.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (29.0, 64.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (15.9, 64.0, 9.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.4, 64.0, 9.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (15.4, 64.0, 9.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (15.9, 64.0, 9.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (15.9, 64.0, 8.5) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ nada no raio de interação em painel de chamada do monta-carga (observação) ((14.8, 52.6, 8.0)) — objeto: sim
+[BOT]   ✖ rota inválida: alvo (34.1, 64.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.5, 64.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (17.0, 64.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.0, 64.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.5, 64.0, 8.9) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.5, 64.0, 7.9) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ nada no raio de interação em painel da plataforma (módulo) ((16.4, 64.5, 8.0)) — objeto: sim
+[BOT]   ✖ monta-carga C → módulo de observação: o jogador não foi carregado pelo monta-carga (y=55.6, esperava 75.5)
+[BOT]   ✖ rota inválida: alvo (31.5, 76.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (24.0, 76.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (16.0, 76.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (8.0, 76.0, 0.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (0.0, 76.0, 8.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (-9.5, 76.0, 8.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (-9.0, 76.0, 8.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (-10.0, 76.0, 8.1) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (-9.5, 76.0, 8.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (-9.5, 76.0, 7.6) está em outro convés (jogador em (16.6, 55.6, 9.6))
 [BOT]   ✖ nada no raio de interação em console do Protocolo Espelho ((-11.0, 76.0, 8.0)) — objeto: sim
-[BOT]   ✖ rota inválida: alvo (0.0, 76.0, 15.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (9.0, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (12.5, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (13.0, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (12.0, 76.0, 7.5) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (12.5, 76.0, 8.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
-[BOT]   ✖ rota inválida: alvo (12.5, 76.0, 7.0) está em outro convés (jogador em (33.2, 64.0, 0.1))
+[BOT]   ✖ rota inválida: alvo (0.0, 76.0, 15.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (9.0, 76.0, 8.0) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (12.5, 76.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (13.0, 76.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (12.0, 76.0, 8.4) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (12.5, 76.0, 8.9) está em outro convés (jogador em (16.6, 55.6, 9.6))
+[BOT]   ✖ rota inválida: alvo (12.5, 76.0, 7.9) está em outro convés (jogador em (16.6, 55.6, 9.6))
 [BOT]   ✖ nada no raio de interação em console ECHO ((11.0, 76.0, 8.0)) — objeto: sim
 [BOT]   ✖ o console ECHO não abriu o painel de decisão final (painel: <null>)
 [BOT]   ✖ nenhum final foi registrado
