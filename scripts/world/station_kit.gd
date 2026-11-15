@@ -444,6 +444,7 @@ static func table_chairs(parent: Node3D, pos: Vector3, yaw := 0.0, chairs := 4) 
 	g.rotation.y = yaw
 	parent.add_child(g)
 	G3D.box(g, Vector3(1.6, 0.06, 0.9), Vector3(0, 0.74, 0), Mats.get_mat("metal"), true, Vector3.ZERO, "mesa")
+	Setores.mesa_posta(g, int(absf(pos.x) * 7.0 + absf(pos.z) * 3.0) + chairs)
 	for i in 4:
 		G3D.cyl(g, 0.03, 0.74, Vector3(-0.7 + (1.4 if i % 2 == 1 else 0.0), 0.37, -0.38 + (0.76 if i > 1 else 0.0)), Mats.get_mat("metal"), Vector3.ZERO, false)
 	for i in chairs:

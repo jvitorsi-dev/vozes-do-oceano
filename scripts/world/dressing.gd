@@ -233,8 +233,8 @@ static func _cabines(root: Node3D) -> void:
 static func _refeitorio(root: Node3D) -> void:
 	var y := D1
 	# cozinha de campo ao fundo: bancada longa, exaustão, panelas
-	Detail.workbench(root, Vector3(-8.0, y, 37.6), 0.0, 901)
-	Detail.workbench(root, Vector3(-2.0, y, 37.6), 0.0, 903)
+	Setores.cozinha(root, Vector3(-11.25, y, 25.5), PI * 0.5, 9.0)
+	Setores.carrinho(root, Vector3(-3.0, y, 38.9), 0.0)
 	Detail.louver(root, Vector3(0.0, y + 3.2, 38.6), PI, 1.4, 0.9)
 	Detail.pipe_run(root, Vector3(-11.0, y + 3.7, 36.4), Vector3(11.0, y + 3.7, 36.4), 3, 0.09, true, 905)
 	Detail.cable_tray(root, Vector3(-10.0, y + 3.4, 20.0), Vector3(10.0, y + 3.4, 20.0), 907, 5)
@@ -256,15 +256,17 @@ static func _refeitorio(root: Node3D) -> void:
 static func _laboratorios(root: Node3D) -> void:
 	var y := D2
 	# bancadas de análise encostadas na parede, com vidraria e cilindros
-	Detail.workbench(root, Vector3(-11.0, y, -22.0), PI * 0.5, 1001)
-	Detail.workbench(root, Vector3(11.0, y, -22.0), -PI * 0.5, 1003)
+	Setores.bancada_lab(root, Vector3(-13.4, y, -22.5), PI * 0.5, 1001)
+	Setores.bancada_lab(root, Vector3(13.4, y, -24.0), -PI * 0.5, 1003)
+	# tanques de espécime ao fundo, mesa de exames equipada
+	for i in 3:
+		Setores.tanque_especime(root, Vector3(6.0 + float(i) * 1.6, y, -36.9), 1021 + i)
+	Setores.mesa_exame_acessorios(root, Vector3(-8.0, y + 0.85, -30.0), y + 3.6)
 	# cilindros de gás com cinta e manômetro
 	for i in 3:
 		cylinder(root, Vector3(-13.2, y, -34.0 + float(i) * 0.8), 1005 + i)
 	# capela de exaustão (duto alto com grade)
-	G3D.box(root, Vector3(1.8, 2.2, 1.1), Vector3(-12.4, y + 1.1, -28.0), Mats.get_mat("metal"), true, Vector3.ZERO, "capela")
-	G3D.box(root, Vector3(1.6, 0.9, 0.05), Vector3(-12.4, y + 1.3, -27.45), Mats.get_mat("glass_scratch"), false, Vector3.ZERO, "vidro_capela")
-	Detail.louver(root, Vector3(-12.4, y + 2.6, -28.0), PI * 0.5, 1.2, 0.6)
+	Setores.capela(root, Vector3(-13.3, y, -28.0), PI * 0.5, 3.6)
 	Detail.pipe_run(root, Vector3(-14.0, y + 3.2, -36.0), Vector3(-14.0, y + 3.2, -19.0), 3, 0.08, true, 1007)
 	Detail.cable_tray(root, Vector3(-12.0, y + 3.0, -37.0), Vector3(12.0, y + 3.0, -37.0), 1009, 6)
 	Detail.monitor_bank(root, Vector3(0.0, y + 1.6, -37.4), 0.0, 3, 2)
@@ -417,7 +419,12 @@ static func _maquinas(root: Node3D, y: float) -> void:
 # ================================================================ ENFERMARIA
 static func _enfermaria(root: Node3D) -> void:
 	var y := D2
-	Detail.workbench(root, Vector3(-9.4, y, 22.0), PI * 0.5, 1201)
+	Setores.posto_enfermagem(root, Vector3(-11.45, y, 22.5), PI * 0.5, 1215)
+	Setores.bateria_o2(root, Vector3(-11.55, y, 33.6), PI * 0.5, 4)
+	Setores.suporte_soro(root, Vector3(-7.3, y, 23.2), 0.4)
+	Setores.suporte_soro(root, Vector3(7.3, y, 23.2), 2.1)
+	Setores.foco_cirurgico(root, Vector3(-6.6, y + 3.4, 24.0), 0.0)
+	Setores.foco_cirurgico(root, Vector3(5.4, y + 3.4, 24.0), 0.0)
 	Detail.louver(root, Vector3(0.0, y + 3.05, 18.6), 0.0, 1.0, 0.6)
 	Detail.pipe_run(root, Vector3(-11.4, y + 3.05, 19.0), Vector3(-11.4, y + 3.05, 35.0), 2, 0.06, false, 1203)
 	Detail.pipe_run(root, Vector3(11.4, y + 3.05, 19.0), Vector3(11.4, y + 3.05, 35.0), 3, 0.07, true, 1205)
@@ -458,6 +465,11 @@ static func _comando(root: Node3D) -> void:
 	var y := D3
 	# sala de controle: o lugar mais "vivo" que sobrou da estação
 	Detail.monitor_bank(root, Vector3(-8.0, y + 1.8, -33.4), 0.0, 4, 2)
+	# computadores de fita ao longo da parede oeste, mesa de plotagem e poltrona
+	for zr: float in [-24.6, -25.6, -26.6, -29.4, -30.4]:
+		Setores.rack_fita(root, Vector3(-13.4, y, zr), PI * 0.5, 1421 + int(absf(zr) * 10.0))
+	Setores.mesa_plotagem(root, Vector3(-7.5, y, -27.0), 0.0)
+	Setores.poltrona(root, Vector3(-7.5, y, -25.6), PI)
 	Detail.monitor_bank(root, Vector3(4.0, y + 1.8, -33.4), 0.0, 4, 2)
 	Detail.gauge_panel(root, Vector3(13.4, y + 1.6, -24.0), -PI * 0.5, 4, 1401)
 	Detail.breaker_panel(root, Vector3(13.4, y + 1.6, -30.0), -PI * 0.5, 1403)

@@ -58,6 +58,11 @@ const SHOTS := [
 	{"pos": Vector3(-28.0, 66.4, 5.0), "look": Vector3(-38.0, 65.8, -3.0), "nome": "eclusa"},
 	{"pos": Vector3(-27.0, 54.4, 5.0), "look": Vector3(-36.5, 53.9, -5.0), "nome": "radio"},
 	{"pos": Vector3(24.0, 78.4, 3.0), "look": Vector3(34.0, 77.9, -5.0), "nome": "antessala"},
+	{"pos": Vector3(-2.0, 41.8, 22.5), "look": Vector3(-11.0, 40.9, 27.0), "nome": "cozinha"},
+	{"pos": Vector3(-2.0, 53.8, -20.5), "look": Vector3(-12.0, 52.9, -29.0), "nome": "laboratorio"},
+	{"pos": Vector3(2.0, 53.7, -29.0), "look": Vector3(8.0, 53.0, -37.0), "nome": "lab_tanques"},
+	{"pos": Vector3(-3.0, 53.8, 28.5), "look": Vector3(-11.5, 52.9, 23.0), "nome": "enfermaria_posto"},
+	{"pos": Vector3(-2.0, 65.7, -21.5), "look": Vector3(-13.0, 64.9, -28.0), "nome": "comando_racks"},
 ]
 
 
