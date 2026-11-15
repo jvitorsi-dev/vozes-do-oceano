@@ -235,9 +235,18 @@ static func ceiling_lamp(parent: Node3D, pos: Vector3, along_x: bool, length: fl
 	light.position = Vector3(0, -0.35, 0)
 	light.light_energy = light_energy
 	light.light_color = Color(1.0, 0.30, 0.20) if emergency else color
-	light.omni_range = 14.0
+	# Alcance contido: com 14 m cada lâmpada banhava três salas e nada tinha
+	# contraste (e cada parede somava dezenas de luzes). Com 10 m a luz cai
+	# antes de chegar à sala vizinha: aparecem poças de luz e cantos escuros.
+	light.omni_range = 10.0
+	light.omni_attenuation = 1.25
 	light.shadow_enabled = false
 	light.light_specular = 0.6
+	# longe da câmera a luz some aos poucos (só o desktop aproveita)
+	light.distance_fade_enabled = true
+	light.distance_fade_begin = 38.0
+	light.distance_fade_length = 10.0
+	light.distance_fade_shadow = 24.0
 	g.add_child(light)
 	return {"node": g, "light": light, "tube": tube}
 

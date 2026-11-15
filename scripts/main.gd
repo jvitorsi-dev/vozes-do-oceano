@@ -29,6 +29,11 @@ var _play_menu := false
 var _play := false
 var _shot_frames := 0
 var _inspecao_feita := false
+var _shot_real := false
+var _shot_real_forca := false
+## Tomadas repetidas no modo --real (uma por tipo de ambiente).
+const SHOTS_REAIS := ["hangar", "anel", "refeitorio", "comando", "engenharia", "deposito",
+		"cabines", "enfermaria", "corredorobs", "observatorio"]
 ## Quadros de acomodação antes de gravar cada tomada. Era 45, o que tornava
 ## cada captura Vulkan muito longa na máquina de build; 12 já estabiliza
 ## iluminação, névoa e TAA.
@@ -90,6 +95,17 @@ func _ready() -> void:
 		if a == "--autostart":
 			_autostart = true
 		elif a == "--shot":
+			_shot = true
+			_autostart = true
+		elif a == "--real":
+			# capturas com a luz REAL da partida (sem luz de inspeção)
+			_shot_real = true
+			_shot = true
+			_autostart = true
+		elif a == "--real-luz":
+			# idem, mas com a energia da estação já restaurada
+			_shot_real = true
+			_shot_real_forca = true
 			_shot = true
 			_autostart = true
 		elif a == "--play":
@@ -468,7 +484,8 @@ func _selftest_run() -> void:
 func _shot_tick() -> void:
 	# modo captura: luz de trabalho para conferir materiais e geometria
 	if _shot_i < 0:
-		LampGrid.power_on()
+		if not _shot_real or _shot_real_forca:
+			LampGrid.power_on()
 		for c in UI.get_children():
 			if c is IntroSequence:
 				c.queue_free()
@@ -479,7 +496,7 @@ func _shot_tick() -> void:
 	_shot_frames += 1
 	if _shot_i < 0 or _shot_frames > SHOT_SETTLE:
 		_shot_i += 1
-		if _shot_i <= 0:
+		if _shot_i <= 0 and (not _shot_real or _shot_real_forca):
 			LampGrid.power_on()
 		_shot_frames = 0
 		if _shot_i >= SHOTS.size():
@@ -489,7 +506,10 @@ func _shot_tick() -> void:
 		if _shot_only != "" and String(s["nome"]) != _shot_only:
 			_shot_frames = SHOT_SETTLE + 1
 			return
-		if s.has("res"):
+		if _shot_real and not SHOTS_REAIS.has(String(s["nome"])):
+			_shot_frames = SHOT_SETTLE + 1
+			return
+		if s.has("res") and not _shot_real:
 			GameState.add_resonance(int(s["res"]))
 		if s.has("fig"):
 			var m := Manifestation.new()
@@ -504,7 +524,8 @@ func _shot_tick() -> void:
 		menu_cam.look_at(s["look"], Vector3.UP)
 		menu_cam.make_current()
 		print("[SHOT %d] %s  frame=%d" % [_shot_i, String(s["nome"]), Engine.get_process_frames()])
-	_luz_de_inspecao()
+	if not _shot_real:
+		_luz_de_inspecao()
 
 
 ## Iluminação de inspeção — só nas capturas (--shot). O jogo é escuro de

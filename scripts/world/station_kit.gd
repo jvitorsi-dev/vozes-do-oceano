@@ -175,6 +175,24 @@ static func room(parent: Node3D, x1: float, z1: float, x2: float, z2: float,
 				float(l.get("len", 1.7)), float(l.get("energy", 0.75)),
 				l.get("color", Color(0.72, 0.82, 0.98)), bool(l.get("emergency", false)))
 		lamp_nodes.append(lamp)
+		var idx := lamp_nodes.size() - 1
+		var luz := lamp["light"] as OmniLight3D
+		# uma luz-chave por sala projeta sombra (só no desktop: no navegador
+		# sombra de luz pontual custa caro demais)
+		if idx == 0 and not OS.has_feature("web"):
+			luz.shadow_enabled = true
+			luz.shadow_bias = 0.06
+			luz.shadow_normal_bias = 1.4
+			luz.shadow_blur = 1.6
+		# reator cansado: mais ou menos uma luminária em cada quatro falha
+		var sorte := int(absf(lp.x) * 7.0 + absf(lp.y) * 13.0 + absf(y) * 3.0)
+		if sorte % 4 == 1:
+			var pisca := LampFlicker.new()
+			pisca.luz = luz
+			pisca.tubo = lamp["tube"] as Node3D
+			pisca.semente = sorte + 17
+			pisca.intervalo = 6.0 + float(sorte % 7)
+			(lamp["node"] as Node3D).add_child(pisca)
 
 	# tubulação aparente
 	if bool(opts.get("pipes", false)):
