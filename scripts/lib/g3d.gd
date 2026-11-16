@@ -281,7 +281,9 @@ static func sign(parent: Node3D, text: String, pos: Vector3, rot_y: float,
 	l.billboard = BaseMaterial3D.BILLBOARD_DISABLED
 	l.no_depth_test = false
 	l.shaded = true
-	l.double_sided = true
+	# verso espelhado: "LEITO 1" lido ao contrário por trás da cama.
+	# Sem face traseira, o letreiro simplesmente some visto de trás.
+	l.double_sided = false
 	parent.add_child(l)
 	return l
 
@@ -296,6 +298,7 @@ static func label3d(parent: Node3D, text: String, pos: Vector3, rot_y: float, si
 	l.modulate = color
 	l.outline_size = 4
 	l.outline_modulate = Color(0, 0, 0, 0.7)
+	l.double_sided = false
 	l.position = pos
 	l.rotation.y = rot_y
 	l.shaded = true

@@ -450,7 +450,10 @@ static func _build(key: String, m: StandardMaterial3D) -> void:
 		"ceiling":
 			var cfg5 := {
 				"pattern": "perf", "size": SIZE, "step": 64,
-				"base": Color(0.155, 0.165, 0.175), "seed": 29, "rough": 0.72, "metal": 0.30,
+				# albedo 0,16 com metal 0,30 não refletia nem a luz ambiente:
+				# longe das lâmpadas o teto era um preto só. Cinza claro e
+				# quase sem metal devolve o forro à sala.
+				"base": Color(0.30, 0.31, 0.325), "seed": 29, "rough": 0.78, "metal": 0.12,
 				"grime": 0.34, "wear": 0.08, "bump": 1.8,
 				"stain": Color(0.06, 0.065, 0.07),
 			}

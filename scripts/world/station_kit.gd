@@ -526,11 +526,19 @@ static func railing(parent: Node3D, from_p: Vector3, to_p: Vector3, height := 1.
 		G3D.box(parent, Vector3(0.06, height, 0.06), p + Vector3(0, height * 0.5, 0), Mats.get_mat("metal"), false, Vector3.ZERO, "montante")
 
 
+static var _stain_tex: Texture2D = null
+
+
 static func stain(parent: Node3D, pos: Vector3, size := Vector2(1.2, 0.9), dark := true) -> void:
 	var m := StandardMaterial3D.new()
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	m.albedo_color = Color(0.02, 0.03, 0.04, 0.75) if dark else Color(0.10, 0.13, 0.15, 0.55)
-	m.roughness = 0.25
+	m.albedo_color = Color(0.03, 0.04, 0.05, 0.62) if dark else Color(0.10, 0.13, 0.15, 0.50)
+	m.roughness = 0.35
+	# sem textura a mancha era um retângulo preto chapado (visível no CI);
+	# a máscara irregular dissolve a borda no piso
+	if _stain_tex == null:
+		_stain_tex = ImageTexture.create_from_image(Decals._blob(128, 77, 0.8, false))
+	m.albedo_texture = _stain_tex
 	var mi := MeshInstance3D.new()
 	var pm := PlaneMesh.new()
 	pm.size = size

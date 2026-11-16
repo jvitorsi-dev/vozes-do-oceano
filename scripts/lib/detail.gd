@@ -478,13 +478,17 @@ static func puddle(parent: Node3D, pos: Vector3, r := 1.4, seed_v := 1) -> void:
 	var d := Decals.make("water", Vector2(r, r), Vector3(pos.x, pos.y + 0.025, pos.z), 0.0,
 			false, Color(0.03, 0.045, 0.06, 0.85), false, seed_v)
 	parent.add_child(d)
-	# brilho especular: uma laje fina e lisa em cima da mancha
+	# brilho especular: uma laje fina e lisa em cima da mancha.
+	# Metálico 0,5 com rugosidade 0,04 virava um disco claro e chapado no
+	# renderizador de compatibilidade (CI e web): o brilho espelhado não
+	# tinha o que refletir e sobrava um decágono branco no chão. Um brilho
+	# contido lê como água em qualquer renderizador.
 	var m := StandardMaterial3D.new()
-	m.albedo_color = Color(0.02, 0.03, 0.04, 0.55)
+	m.albedo_color = Color(0.025, 0.035, 0.045, 0.45)
 	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	m.roughness = 0.04
-	m.metallic = 0.5
-	var disc := _cil(parent, r * 0.55, 0.012, Vector3(pos.x, pos.y + 0.012, pos.z), m, Vector3.ZERO, false)
+	m.roughness = 0.22
+	m.metallic = 0.15
+	var disc := _cil(parent, r * 0.55, 0.012, Vector3(pos.x, pos.y + 0.012, pos.z), m, Vector3.ZERO, 22)
 	disc.name = "Poca"
 
 
