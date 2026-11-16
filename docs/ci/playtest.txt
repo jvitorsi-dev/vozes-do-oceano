@@ -23,7 +23,7 @@
 [BOT] ✔ diário de Íris lido no mesmo terminal
 [BOT] screenshot: /home/user/bot_shots/01-02-briefing.png
 [BOT] ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 1)
-[BOT] ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT] ! preso perto de (-12.5, 40.0, -14.3), tentando desviar (tentativa 2)
 [BOT] ✔ usei bancada de manutenção — prompt: "Ler terminal"
 [BOT] ✔ usei bancada de manutenção (reabrindo) — prompt: "Ler terminal"
 [BOT] ✔ manual do reator lido
@@ -77,7 +77,7 @@
 [BOT] ✔ usei painel de chamada do monta-carga (observação) — prompt: "Chamar monta-carga"
 [BOT] ✔ chamada do monta-carga C: plataforma no nível 64
 [BOT] ✔ usei painel da plataforma (módulo) — prompt: "Operar monta-carga"
-[BOT] ✔ monta-carga C → módulo de observação (jogador chegou em y=75.6)
+[BOT] ✔ monta-carga C → módulo de observação (jogador chegou em y=75.5)
 [BOT] screenshot: /home/user/bot_shots/11-12-antessala.png
 [BOT] screenshot: /home/user/bot_shots/12-13-modulo.png
 [BOT] ✔ usei console do Protocolo Espelho — prompt: "Ler terminal"
@@ -93,7 +93,7 @@
 [BOT] verificações ok: 70
 [BOT] avisos: 4
 [BOT]   ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 1)
-[BOT]   ! preso perto de (-13.2, 40.0, -14.3), tentando desviar (tentativa 2)
+[BOT]   ! preso perto de (-12.5, 40.0, -14.3), tentando desviar (tentativa 2)
 [BOT]   ! preso perto de (0.3, 64.0, -19.8), tentando desviar (tentativa 3)
 [BOT]   ! preso perto de (4.9, 64.0, -19.7), tentando desviar (tentativa 4)
 [BOT] falhas: 0
