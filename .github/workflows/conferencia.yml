@@ -183,6 +183,10 @@ jobs:
           ls -la dist
           test -s dist/VozesDoOceano.exe
           test -s dist/VozesDoOceano.pck
+          # sabor compat: mesmo renderizador que o CI confere (fallback do crash Vulkan)
+          timeout 600 "$GODOT" --headless --path . --export-release "Windows Compat" "dist/VozesDoOceanoCompat.exe"
+          test -s dist/VozesDoOceanoCompat.exe
+          test -s dist/VozesDoOceanoCompat.pck
 
       - name: Artefato (.exe + .pck)
         uses: actions/upload-artifact@v4
@@ -191,4 +195,13 @@ jobs:
           path: |
             dist/VozesDoOceano.exe
             dist/VozesDoOceano.pck
+          retention-days: 30
+
+      - name: Artefato compat (.exe + .pck)
+        uses: actions/upload-artifact@v4
+        with:
+          name: vozes-do-oceano-windows-compat
+          path: |
+            dist/VozesDoOceanoCompat.exe
+            dist/VozesDoOceanoCompat.pck
           retention-days: 30

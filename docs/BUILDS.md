@@ -19,6 +19,13 @@ O zip traz dois arquivos que precisam ficar **na mesma pasta**:
 `VozesDoOceano.exe` (o motor) e `VozesDoOceano.pck` (o jogo). Se quiser
 renomear, renomeie os dois com o mesmo nome-base.
 
+A execução gera um segundo artefato, `vozes-do-oceano-windows-compat`
+(`VozesDoOceanoCompat.exe` + `.pck`): o mesmo jogo no renderizador de
+compatibilidade — o que o CI confere a cada push, abre em qualquer máquina
+e não usa Vulkan. É o fallback oficial enquanto o crash do Forward+ na
+primeira tela não é diagnosticado; também é a versão recomendada para
+máquinas sem Vulkan ou com driver antigo.
+
 Requisitos da máquina: Windows 10/11 x86_64 com placa de vídeo e driver em
 dia (o jogo abre em Forward+/Vulkan).
 
