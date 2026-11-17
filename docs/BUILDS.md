@@ -59,3 +59,8 @@ artefato `web` na execução. Publicar em https://jvitorsi-dev.github.io/
 vozes-do-oceano/ depende de ligar o Pages nas configurações do repositório
 (Settings → Pages → Source: GitHub Actions); sem isso, o job `publicar`
 falha e o artefato continua disponível para baixar.
+
+### Log da exportação
+O job `exe` grava o log completo da exportação em `docs/ci/exe.log` no
+próprio branch (ele volta no commit "[skip ci]" da execução), já que os
+logs da Actions não são acessíveis fora do GitHub.
