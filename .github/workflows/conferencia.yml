@@ -6,7 +6,8 @@ name: Conferencia visual
 on:
   push:
     branches: ["arena/**"]
-    paths-ignore: ["docs/ci/**"]
+    # mexer só no CI ou nos presets não precisa re-conferir o jogo inteiro
+    paths-ignore: ["docs/ci/**", ".github/**", "export_presets.cfg"]
   workflow_dispatch:
 
 permissions:
@@ -24,6 +25,7 @@ env:
 
 jobs:
   capturas:
+    if: github.event_name == 'push'
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     steps:
@@ -104,6 +106,7 @@ jobs:
           git push -q origin "HEAD:${GITHUB_REF_NAME}"
 
   web:
+    if: github.event_name == 'push'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -141,6 +144,7 @@ jobs:
 
   publicar:
     needs: web
+    if: github.event_name == 'push'
     runs-on: ubuntu-24.04
     continue-on-error: true
     environment:
@@ -149,3 +153,38 @@ jobs:
     steps:
       - id: deploy
         uses: actions/deploy-pages@v4
+
+  # Build jogável de Windows, só sob demanda (Actions → Run workflow).
+  # O .exe sai como artefato da execução: baixa, deszipa, joga.
+  exe:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Godot 4.4 + modelo de exportacao Windows
+        run: |
+          curl -sSL -o godot.zip "$GODOT_URL/$GODOT_BIN.zip"
+          unzip -q godot.zip -d "$RUNNER_TEMP"
+          echo "GODOT=$RUNNER_TEMP/$GODOT_BIN" >> "$GITHUB_ENV"
+          curl -sSL -o tpl.tpz "$GODOT_URL/Godot_v4.4-stable_export_templates.tpz"
+          T="$HOME/.local/share/godot/export_templates/4.4.stable"
+          mkdir -p "$T"
+          unzip -q -j tpl.tpz "templates/windows_release_x86_64.exe" "templates/version.txt" -d "$T"
+          rm tpl.tpz
+
+      - name: Exportar o .exe (release, pck embutido)
+        run: |
+          timeout 300 "$GODOT" --headless --path . --import || true
+          mkdir -p dist
+          timeout 600 "$GODOT" --headless --path . --export-release "Windows" "dist/VozesDoOceano.exe"
+          ls -la dist
+          test -s dist/VozesDoOceano.exe
+
+      - name: Artefato (.exe)
+        uses: actions/upload-artifact@v4
+        with:
+          name: vozes-do-oceano-windows
+          path: dist/VozesDoOceano.exe
+          retention-days: 30
