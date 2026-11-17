@@ -32,6 +32,7 @@ var _inspecao_feita := false
 var _shot_real := false
 var _shot_real_forca := false
 var _lowfx := false
+var _so_splash := false
 var _splash_layer: CanvasLayer = null
 var _boot_frames := 0
 var _boot_next := 5.0
@@ -75,6 +76,8 @@ func _ready() -> void:
 	for a0: String in OS.get_cmdline_user_args():
 		if a0 == "--lowfx":
 			_lowfx = true
+		elif a0 == "--so-splash":
+			_so_splash = true
 	Boot.mark("ready: comecando ambiente e mundo")
 	# dois quadros só com o aviso 2D: quando o primeiro quadro 3D travar a
 	# thread principal compilando shaders, o jogador já está lendo o porquê
@@ -82,6 +85,14 @@ func _ready() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	Boot.mark("splash na tela")
+	if _so_splash:
+		# bissecção de crash de abertura: só o aviso 2D, sem HUD nem mundo.
+		# Se o processo sobreviver aqui, o assassino está no que a cena
+		# desenha; se morrer, está na inicialização do renderer/janela.
+		if UI.has_node("HUD"):
+			UI.get_node("HUD").visible = false
+		Boot.mark("so-splash: sem HUD e sem mundo; batendo a cada 5s")
+		return
 	_build_environment()
 	_build_sea()
 
@@ -370,7 +381,7 @@ func _process(delta: float) -> void:
 	if _shot:
 		_shot_tick()
 		return
-	if not started:
+	if not started and menu_cam != null:
 		_menu_t += delta
 		var r := 78.0
 		var a := _menu_t * 0.045

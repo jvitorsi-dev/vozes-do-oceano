@@ -70,3 +70,9 @@ Qualquer build abre no modo compat (sem Vulkan) com:
 `VozesDoOceano.exe --rendering-driver opengl3`
 É o mesmo renderer das capturas do CI — útil em máquina sem Vulkan,
 driver antigo, ou para contornar o crash conhecido do Forward+.
+
+### Bissecção de crash de abertura (`--so-splash`)
+`VozesDoOceano.exe --so-splash` (ou o Compat) abre só o aviso 2D, sem HUD e
+sem mundo, e grava "vivo aos Xs" no boot.log a cada 5 segundos. Serve para
+localizar um crash de abertura: se sobreviver, o problema está no conteúdo
+da cena; se morrer igual, está na inicialização do renderer ou da janela.
