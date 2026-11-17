@@ -64,3 +64,9 @@ falha e o artefato continua disponível para baixar.
 O job `exe` grava o log completo da exportação em `docs/ci/exe.log` no
 próprio branch (ele volta no commit "[skip ci]" da execução), já que os
 logs da Actions não são acessíveis fora do GitHub.
+
+### Forçar o renderizador de compatibilidade sem trocar de exe
+Qualquer build abre no modo compat (sem Vulkan) com:
+`VozesDoOceano.exe --rendering-driver opengl3`
+É o mesmo renderer das capturas do CI — útil em máquina sem Vulkan,
+driver antigo, ou para contornar o crash conhecido do Forward+.

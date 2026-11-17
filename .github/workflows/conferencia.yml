@@ -186,6 +186,10 @@ jobs:
 
       - name: Exportar o .exe compat (release)
         run: |
+          # o sabor compat troca o renderizador no project.godot do runner:
+          # sufixo de feature customizada (".compat") nao parseia no Godot 4.4
+          sed -i 's|^renderer/rendering_method="forward_plus"|renderer/rendering_method="gl_compatibility"|' project.godot
+          grep -n "rendering_method=" project.godot | tee -a docs/ci/exe.log
           timeout 600 "$GODOT" --headless --path . --export-release "Windows Compat" "dist/VozesDoOceanoCompat.exe"             >> docs/ci/exe.log 2>&1
           ls -la dist | tee -a docs/ci/exe.log
           test -s dist/VozesDoOceanoCompat.exe
