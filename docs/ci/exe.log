@@ -149,10 +149,10 @@ loading_editor_layout: begin: Loading editor steps: 5
 	loading_editor_layout: step 0: Loading editor layout...
 loading_editor_layout: end
 total 96680
-drwxr-xr-x  2 runner runner     4096 Nov 17 01:16 .
-drwxr-xr-x 11 runner runner     4096 Nov 17 01:16 ..
--rw-r--r--  1 runner runner 97496576 Nov 17 01:16 VozesDoOceano.exe
--rw-r--r--  1 runner runner  1492896 Nov 17 01:16 VozesDoOceano.pck
+drwxr-xr-x  2 runner runner     4096 Nov 17 03:00 .
+drwxr-xr-x 11 runner runner     4096 Nov 17 03:00 ..
+-rw-r--r--  1 runner runner 97496576 Nov 17 03:00 VozesDoOceano.exe
+-rw-r--r--  1 runner runner  1493216 Nov 17 03:00 VozesDoOceano.pck
 51:renderer/rendering_method="gl_compatibility"
 Godot Engine v4.4.stable.official.4c311cbee - https://godotengine.org
 
@@ -287,9 +287,9 @@ loading_editor_layout: begin: Loading editor steps: 5
 	loading_editor_layout: step 0: Loading editor layout...
 loading_editor_layout: end
 total 193352
-drwxr-xr-x  2 runner runner     4096 Nov 17 01:16 .
-drwxr-xr-x 11 runner runner     4096 Nov 17 01:16 ..
--rw-r--r--  1 runner runner 97496576 Nov 17 01:16 VozesDoOceano.exe
--rw-r--r--  1 runner runner  1492896 Nov 17 01:16 VozesDoOceano.pck
--rw-r--r--  1 runner runner 97496576 Nov 17 01:16 VozesDoOceanoCompat.exe
--rw-r--r--  1 runner runner  1493008 Nov 17 01:16 VozesDoOceanoCompat.pck
+drwxr-xr-x  2 runner runner     4096 Nov 17 03:00 .
+drwxr-xr-x 11 runner runner     4096 Nov 17 03:00 ..
+-rw-r--r--  1 runner runner 97496576 Nov 17 03:00 VozesDoOceano.exe
+-rw-r--r--  1 runner runner  1493216 Nov 17 03:00 VozesDoOceano.pck
+-rw-r--r--  1 runner runner 97496576 Nov 17 03:00 VozesDoOceanoCompat.exe
+-rw-r--r--  1 runner runner  1493328 Nov 17 03:00 VozesDoOceanoCompat.pck
