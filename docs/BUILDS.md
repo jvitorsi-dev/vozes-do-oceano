@@ -13,9 +13,11 @@ Duas formas de pedir o build:
    roda só o job `exe` (a conferência visual longa é pulada).
 
 Em ambos os casos, ao fim da execução (uns 5 minutos), a página da execução
-tem a seção **Artifacts** com `vozes-do-oceano-windows` (zip, ~60 MB,
+tem a seção **Artifacts** com `vozes-do-oceano-windows` (zip, ~40 MB,
 ficam 30 dias no ar). Baixe, deszipe e rode `VozesDoOceano.exe`.
-É um arquivo só: o conteúdo do jogo vai embutido no executável.
+O zip traz dois arquivos que precisam ficar **na mesma pasta**:
+`VozesDoOceano.exe` (o motor) e `VozesDoOceano.pck` (o jogo). Se quiser
+renomear, renomeie os dois com o mesmo nome-base.
 
 Requisitos da máquina: Windows 10/11 x86_64 com placa de vídeo e driver em
 dia (o jogo abre em Forward+/Vulkan).
@@ -26,7 +28,8 @@ dia (o jogo abre em Forward+/Vulkan).
 2. Abra o projeto; em *Editor → Manage Export Templates*, baixe os modelos.
 3. *Project → Export* já traz três presets prontos: **Linux**, **Windows**
    e **Web**. Escolha *Windows* → *Export Release*.
-4. Sai `dist/VozesDoOceano.exe` (pck embutido, arquivo único).
+4. Sai `dist/VozesDoOceano.exe` + `dist/VozesDoOceano.pck` — mantenha os dois
+   na mesma pasta para jogar.
 
 ## Versão web
 

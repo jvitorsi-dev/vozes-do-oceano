@@ -175,17 +175,20 @@ jobs:
           unzip -q -j tpl.tpz "templates/windows_release_x86_64.exe" "templates/version.txt" -d "$T"
           rm tpl.tpz
 
-      - name: Exportar o .exe (release, pck embutido)
+      - name: Exportar o .exe (release)
         run: |
           timeout 300 "$GODOT" --headless --path . --import || true
           mkdir -p dist
           timeout 600 "$GODOT" --headless --path . --export-release "Windows" "dist/VozesDoOceano.exe"
           ls -la dist
           test -s dist/VozesDoOceano.exe
+          test -s dist/VozesDoOceano.pck
 
-      - name: Artefato (.exe)
+      - name: Artefato (.exe + .pck)
         uses: actions/upload-artifact@v4
         with:
           name: vozes-do-oceano-windows
-          path: dist/VozesDoOceano.exe
+          path: |
+            dist/VozesDoOceano.exe
+            dist/VozesDoOceano.pck
           retention-days: 30
