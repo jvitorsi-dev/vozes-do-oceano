@@ -25,7 +25,7 @@ env:
 
 jobs:
   capturas:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[build-exe]')
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     steps:
@@ -106,7 +106,7 @@ jobs:
           git push -q origin "HEAD:${GITHUB_REF_NAME}"
 
   web:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[build-exe]')
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -144,7 +144,7 @@ jobs:
 
   publicar:
     needs: web
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && !contains(github.event.head_commit.message, '[build-exe]')
     runs-on: ubuntu-24.04
     continue-on-error: true
     environment:
@@ -154,10 +154,11 @@ jobs:
       - id: deploy
         uses: actions/deploy-pages@v4
 
-  # Build jogável de Windows, só sob demanda (Actions → Run workflow).
-  # O .exe sai como artefato da execução: baixa, deszipa, joga.
+  # Build jogável de Windows, sob demanda: botão "Run workflow" na página da
+  # Actions, ou um commit com [build-exe] na mensagem. O .exe sai como
+  # artefato da execução: baixa, deszipa, joga.
   exe:
-    if: github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build-exe]')
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
