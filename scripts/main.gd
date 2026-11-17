@@ -31,6 +31,10 @@ var _shot_frames := 0
 var _inspecao_feita := false
 var _shot_real := false
 var _shot_real_forca := false
+var _lowfx := false
+var _splash_layer: CanvasLayer = null
+var _boot_frames := 0
+var _boot_next := 5.0
 ## Tomadas repetidas no modo --real (uma por tipo de ambiente).
 const SHOTS_REAIS := ["hangar", "anel", "refeitorio", "comando", "engenharia", "deposito",
 		"cabines", "enfermaria", "corredorobs", "observatorio"]
@@ -68,6 +72,16 @@ const SHOTS := [
 
 func _ready() -> void:
 	randomize()
+	for a0: String in OS.get_cmdline_user_args():
+		if a0 == "--lowfx":
+			_lowfx = true
+	Boot.mark("ready: comecando ambiente e mundo")
+	# dois quadros só com o aviso 2D: quando o primeiro quadro 3D travar a
+	# thread principal compilando shaders, o jogador já está lendo o porquê
+	_mostra_splash()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	Boot.mark("splash na tela")
 	_build_environment()
 	_build_sea()
 
@@ -95,6 +109,7 @@ func _ready() -> void:
 	AudioMan.music_intensity(0.12)
 	AudioMan.set_ocean_energy(0.18)
 	AudioMan.play_2d("sea", -30.0)
+	Boot.mark("ready fim: som do mar ligado")
 
 	for a: String in OS.get_cmdline_user_args():
 		if a == "--autostart":
@@ -191,31 +206,32 @@ func _build_environment() -> void:
 	e.adjustment_brightness = 1.0
 	# --- recursos de Forward+ (ignorados no renderizador de compatibilidade) ---
 	# oclusão de ambiente: encaixa móveis, painéis e consoles no espaço
-	e.ssao_enabled = true
-	e.ssao_radius = 1.35
-	e.ssao_intensity = 2.4
-	e.ssao_power = 1.8
-	e.ssao_detail = 0.6
-	e.ssao_light_affect = 0.25
-	# iluminação indireta em tela: cor "vaza" das superfícies claras
-	e.ssil_enabled = true
-	e.ssil_intensity = 1.1
-	e.ssil_radius = 6.0
-	# reflexos em tela: o piso encerado e o vidro passam a refletir o corredor
-	e.ssr_enabled = true
-	e.ssr_max_steps = 48
-	e.ssr_fade_in = 0.25
-	e.ssr_fade_out = 9.0
-	e.ssr_depth_tolerance = 0.25
-	# neblina volumétrica: dá corpo ao ar da estação e feixes de luz nas lâmpadas
-	e.volumetric_fog_enabled = true
-	e.volumetric_fog_density = 0.012
-	e.volumetric_fog_albedo = Color(0.62, 0.72, 0.80)
-	e.volumetric_fog_emission = Color(0.012, 0.020, 0.026)
-	e.volumetric_fog_emission_energy = 0.7
-	e.volumetric_fog_gi_inject = 0.7
-	e.volumetric_fog_length = 64.0
-	e.volumetric_fog_ambient_inject = 0.4
+	if not _lowfx:
+		e.ssao_enabled = true
+		e.ssao_radius = 1.35
+		e.ssao_intensity = 2.4
+		e.ssao_power = 1.8
+		e.ssao_detail = 0.6
+		e.ssao_light_affect = 0.25
+		# iluminação indireta em tela: cor "vaza" das superfícies claras
+		e.ssil_enabled = true
+		e.ssil_intensity = 1.1
+		e.ssil_radius = 6.0
+		# reflexos em tela: o piso encerado e o vidro passam a refletir o corredor
+		e.ssr_enabled = true
+		e.ssr_max_steps = 48
+		e.ssr_fade_in = 0.25
+		e.ssr_fade_out = 9.0
+		e.ssr_depth_tolerance = 0.25
+		# neblina volumétrica: dá corpo ao ar da estação e feixes de luz nas lâmpadas
+		e.volumetric_fog_enabled = true
+		e.volumetric_fog_density = 0.012
+		e.volumetric_fog_albedo = Color(0.62, 0.72, 0.80)
+		e.volumetric_fog_emission = Color(0.012, 0.020, 0.026)
+		e.volumetric_fog_emission_energy = 0.7
+		e.volumetric_fog_gi_inject = 0.7
+		e.volumetric_fog_length = 64.0
+		e.volumetric_fog_ambient_inject = 0.4
 	# brilho mais fotográfico
 	e.set_glow_level(1, 0.4)
 	e.set_glow_level(3, 0.6)
@@ -348,6 +364,7 @@ func _build_menu_camera() -> void:
 
 
 func _process(delta: float) -> void:
+	_boot_beat(delta)
 	if _selftest:
 		return
 	if _shot:
@@ -634,3 +651,36 @@ func _medir_peso() -> void:
 	print("fps=%.1f draw_calls=%.0f primitivas=%.0f memoria=%.1f MB" % [fps, draws, prim,
 			mem / 1048576.0])
 	get_tree().quit()
+
+
+func _mostra_splash() -> void:
+	_splash_layer = CanvasLayer.new()
+	_splash_layer.layer = 100
+	var bg := ColorRect.new()
+	bg.color = Color(0.015, 0.022, 0.03)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_splash_layer.add_child(bg)
+	var lb := Label.new()
+	lb.text = "ARGOS-4\n\nprimeira abertura: compilando os shaders do Forward+.\npode parecer travado por alguns minutos —\no som do mar liga antes da imagem."
+	lb.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lb.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lb.set_anchors_preset(Control.PRESET_FULL_RECT)
+	lb.add_theme_font_size_override("font_size", 22)
+	_splash_layer.add_child(lb)
+	add_child(_splash_layer)
+
+
+## Relógio de boot: marca o primeiro quadro 3D de fato e pulsa a cada 5 s
+## nos primeiros três minutos. No boot.log é isso que diz se o jogo travou
+## antes de desenhar (compilação de shader) ou depois (já em partida).
+func _boot_beat(delta: float) -> void:
+	_boot_frames += 1
+	if _boot_frames == 2:
+		Boot.mark("primeiro quadro 3D apresentado")
+		if is_instance_valid(_splash_layer):
+			_splash_layer.queue_free()
+			_splash_layer = null
+	var t := Time.get_ticks_msec() / 1000.0
+	if t < 180.0 and t >= _boot_next:
+		Boot.mark("vivo aos %ds" % int(t))
+		_boot_next = t + 5.0

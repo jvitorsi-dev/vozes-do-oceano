@@ -22,6 +22,20 @@ renomear, renomeie os dois com o mesmo nome-base.
 Requisitos da máquina: Windows 10/11 x86_64 com placa de vídeo e driver em
 dia (o jogo abre em Forward+/Vulkan).
 
+### Primeira abertura pode parecer travamento
+Na primeira vez, o Forward+ compila todos os shaders na hora: a janela pode
+ficar "sem resposta" por alguns minutos enquanto o som do mar já toca.
+Um aviso na tela explica isso; nas aberturas seguintes o motor usa o cache
+e abre rápido. Se travar de verdade, feche pelo gerenciador de tarefas e
+mande o arquivo `boot.log`, que o jogo grava **ao lado do .exe**: ele diz em
+que segundo cada etapa da abertura aconteceu e onde parou.
+
+### Modo leve (`--lowfx`)
+`VozesDoOceano.exe --lowfx` desliga SSAO, iluminação indireta em tela,
+reflexos em tela e neblina volumétrica. Serve para jogar em máquinas
+modestas e para diagnosticar: se o travamento some com `--lowfx`, o culpado
+é um desses efeitos.
+
 ## Build local (editor Godot)
 
 1. Instale o **Godot 4.4-stable** (mesma versão do CI).

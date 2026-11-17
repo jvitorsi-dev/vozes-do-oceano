@@ -2,6 +2,8 @@ extends Node
 ## Boot — primeiro autoload carregado.
 ## Cria o mapa de entrada em código (evita um project.godot gigante) e
 ## ajusta alguns padrões do motor antes de qualquer cena carregar.
+## Também mantém o boot.log: num build exportado, grava ao lado do .exe
+## cada marco da abertura — quando algo trava, o log diz onde parou.
 
 const ACTIONS := {
 	"move_forward": [KEY_W, KEY_UP],
@@ -21,9 +23,29 @@ const ACTIONS := {
 
 
 func _ready() -> void:
+	_abre_log()
+	mark("boot")
 	_ensure_actions()
 	Engine.max_fps = 120
 	process_mode = Node.PROCESS_MODE_ALWAYS
+
+
+var _log: FileAccess = null
+
+
+func _abre_log() -> void:
+	var path := "user://boot.log" if OS.has_feature("web") \
+			else OS.get_executable_path().get_base_dir().path_join("boot.log")
+	_log = FileAccess.open(path, FileAccess.WRITE)
+
+
+## Marco de abertura: linha com hora e segundos desde o processo nascer.
+func mark(what: String) -> void:
+	if _log == null:
+		return
+	_log.store_line("%s  +%7.2fs  %s" % [
+			Time.get_time_string_from_system(), Time.get_ticks_msec() / 1000.0, what])
+	_log.flush()
 
 
 func _ensure_actions() -> void:
