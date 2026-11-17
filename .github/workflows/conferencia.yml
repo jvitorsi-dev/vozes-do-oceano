@@ -175,16 +175,19 @@ jobs:
           unzip -q -j tpl.tpz "templates/windows_release_x86_64.exe" "templates/version.txt" -d "$T"
           rm tpl.tpz
 
-      - name: Exportar o .exe (release)
+      - name: Exportar o .exe Forward+ (release)
         run: |
-          timeout 300 "$GODOT" --headless --path . --import || true
-          mkdir -p dist
-          timeout 600 "$GODOT" --headless --path . --export-release "Windows" "dist/VozesDoOceano.exe"
-          ls -la dist
+          mkdir -p dist docs/ci
+          timeout 300 "$GODOT" --headless --path . --import > docs/ci/exe.log 2>&1 || true
+          timeout 600 "$GODOT" --headless --path . --export-release "Windows" "dist/VozesDoOceano.exe"             >> docs/ci/exe.log 2>&1
+          ls -la dist | tee -a docs/ci/exe.log
           test -s dist/VozesDoOceano.exe
           test -s dist/VozesDoOceano.pck
-          # sabor compat: mesmo renderizador que o CI confere (fallback do crash Vulkan)
-          timeout 600 "$GODOT" --headless --path . --export-release "Windows Compat" "dist/VozesDoOceanoCompat.exe"
+
+      - name: Exportar o .exe compat (release)
+        run: |
+          timeout 600 "$GODOT" --headless --path . --export-release "Windows Compat" "dist/VozesDoOceanoCompat.exe"             >> docs/ci/exe.log 2>&1
+          ls -la dist | tee -a docs/ci/exe.log
           test -s dist/VozesDoOceanoCompat.exe
           test -s dist/VozesDoOceanoCompat.pck
 
@@ -205,3 +208,16 @@ jobs:
             dist/VozesDoOceanoCompat.exe
             dist/VozesDoOceanoCompat.pck
           retention-days: 30
+
+      # o log da exportação volta pelo próprio branch: meu sandbox não
+      # consegue baixar logs nem artefatos da Actions
+      - name: Gravar log de exportacao no branch
+        if: always()
+        run: |
+          git config user.name "conferencia-ci"
+          git config user.email "ci@users.noreply.github.com"
+          git add -A docs/ci
+          git diff --cached --quiet && exit 0
+          git commit -q -m "CI: log de exportacao [skip ci]"
+          git pull -q --rebase origin "${GITHUB_REF_NAME}" || true
+          git push -q origin "HEAD:${GITHUB_REF_NAME}"
